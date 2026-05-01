@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Alejandro & Michell | Nuestra Boda</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&family=Raleway:wght@300;400;600&family=Merriweather:wght@300;400;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="cross-icon">†</div>
+        <h1 class="hero-title" id="couple-name">Alejandro & Michell</h1>
+        <div class="hero-divider"></div>
+        <p class="hero-date" id="wedding-date">Cargando...</p>
+        <p class="hero-location" id="venue-name"></p>
+        <div class="hero-verse" id="verse-container">
+            <p class="verse-text" id="verse-text"></p>
+            <p class="verse-ref" id="verse-ref"></p>
+        </div>
+        <button class="btn-rsvp" onclick="scrollToRSVP()">Confirmar asistencia</button>
+    </div>
+    <div class="hero-scroll">
+        <i class="fas fa-chevron-down"></i>
+    </div>
+</section>
+
+<!-- COUNTDOWN -->
+<section class="countdown">
+    <div class="container">
+        <h2 class="section-title">Faltan para nuestro gran día</h2>
+        <div class="countdown-grid">
+            <div class="countdown-item"><span class="countdown-number" id="days">00</span><span class="countdown-label">Días</span></div>
+            <div class="countdown-item"><span class="countdown-number" id="hours">00</span><span class="countdown-label">Horas</span></div>
+            <div class="countdown-item"><span class="countdown-number" id="minutes">00</span><span class="countdown-label">Minutos</span></div>
+            <div class="countdown-item"><span class="countdown-number" id="seconds">00</span><span class="countdown-label">Segundos</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- HISTORIA -->
+<section class="story">
+    <div class="container">
+        <h2 class="section-title">Nuestra Historia</h2>
+        <p class="story-text" id="story-text"></p>
+    </div>
+</section>
+
+<!-- LOGÍSTICA -->
+<section class="logistics">
+    <div class="container">
+        <h2 class="section-title">Ceremonia & Recepción</h2>
+        <div class="logistics-grid">
+            <div class="logistics-card"><i class="fas fa-church"></i><h3>Ceremonia religiosa</h3><p id="ceremony-time">3:00 PM</p><p id="ceremony-name"></p><p id="ceremony-address"></p></div>
+            <div class="logistics-card"><i class="fas fa-glass-cheers"></i><h3>Recepción</h3><p id="reception-name"></p><p id="reception-address"></p></div>
+            <div class="logistics-card"><i class="fas fa-tshirt"></i><h3>Código de vestimenta</h3><p>Formal elegante</p><p>Traje oscuro / Vestido largo</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- MAPA -->
+<section class="map">
+    <div class="container">
+        <h2 class="section-title">¿Cómo llegar?</h2>
+        <div class="map-container" id="map-container">
+            <iframe id="map-iframe" width="100%" height="400" frameborder="0" style="border:0; border-radius: 12px;" src="https://www.openstreetmap.org/export/embed.html?bbox=-99.143209%2C19.422608%2C-99.123209%2C19.442608&layer=mapnik&marker=19.432608%2C-99.133209"></iframe>
+        </div>
+        <p id="map-address" style="text-align:center; margin-top:1rem; font-size:0.9rem;"></p>
+    </div>
+</section>
+
+<!-- GALERÍA -->
+<section class="gallery">
+    <div class="container">
+        <h2 class="section-title">Galería de recuerdos</h2>
+        <div class="gallery-grid" id="gallery-grid"></div>
+    </div>
+</section>
+
+<!-- RSVP -->
+<section class="rsvp" id="rsvp">
+    <div class="container">
+        <h2 class="section-title">Confirmar asistencia</h2>
+        <p class="rsvp-subtitle">Antes del 20 de Mayo</p>
+        <form id="rsvp-form" class="rsvp-form">
+            <div class="form-group"><input type="text" id="guest-name" placeholder="Nombre completo *" required></div>
+            <div class="form-group"><input type="email" id="guest-email" placeholder="Correo electrónico"></div>
+            <div class="form-group"><input type="tel" id="guest-phone" placeholder="Teléfono de contacto"></div>
+            <div class="form-group"><input type="tel" id="guest-whatsapp" placeholder="WhatsApp (con código país, ej: 5216641117035)"></div>
+            <div class="form-group"><select id="guest-attendees"><option value="1">1 persona</option><option value="2">2 personas</option><option value="3">3 personas</option><option value="4">4 personas</option></select></div>
+            <div class="form-group"><textarea id="guest-allergies" placeholder="Alergias o restricciones alimenticias"></textarea></div>
+            <div class="form-group"><input type="text" id="guest-song" placeholder="Canción sugerida para la fiesta"></div>
+            <div class="form-group radio-group"><label>¿Asistirás?</label><label><input type="radio" name="attending" value="yes" checked> Sí, felizmente</label><label><input type="radio" name="attending" value="no"> No podré asistir</label></div>
+            <button type="submit" class="btn-submit">Confirmar asistencia</button>
+        </form>
+        <div id="rsvp-message" class="rsvp-message"></div>
+    </div>
+</section>
+
+<!-- CHATBOT IA -->
+<div class="chatbot" id="chatbot">
+    <div class="chatbot-button" id="chatbot-toggle"><i class="fas fa-robot"></i><span>Asistente IA</span></div>
+    <div class="chatbot-window" id="chatbot-window">
+        <div class="chatbot-header"><h4>Asistente de boda</h4><button id="chatbot-close">&times;</button></div>
+        <div class="chatbot-messages" id="chatbot-messages"><div class="message bot">¡Hola! Soy el asistente IA de Alejandro y Michell. ¿En qué puedo ayudarte?</div></div>
+        <div class="chatbot-input"><input type="text" id="chatbot-input" placeholder="Escribe tu pregunta..."><button id="chatbot-send"><i class="fas fa-paper-plane"></i></button></div>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>© 2025 Alejandro & Michell — Con amor para nuestros invitados</p>
+    <p class="footer-hashtag">#AlejandroYMichell</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

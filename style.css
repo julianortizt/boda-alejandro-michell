@@ -1,0 +1,506 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: linear-gradient(135deg, #FFF8F0 0%, #FDF0E0 100%);
+  color: #2E241F;
+  line-height: 1.6;
+  transition: all 0.3s ease;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.8rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  transition: color 0.3s ease;
+}
+
+.section-title:after {
+  content: '';
+  display: block;
+  width: 80px;
+  height: 3px;
+  margin: 1rem auto 0;
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.hero {
+  height: 100vh;
+  background: url('https://images.pexels.com/photos/169197/pexels-photo-169197.jpeg') center/cover fixed;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  padding: 0 20px;
+}
+
+.cross-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  transition: color 0.3s ease;
+}
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 5rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: white;
+  text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+}
+
+@media (max-width: 768px) {
+  .hero-title { font-size: 3rem; }
+}
+
+.hero-divider {
+  width: 100px;
+  height: 2px;
+  margin: 1.8rem auto;
+  transition: background 0.3s ease;
+}
+
+.hero-date, .hero-location {
+  font-size: 1.3rem;
+  letter-spacing: 2px;
+  font-weight: 400;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.hero-verse {
+  margin-top: 2.5rem;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  padding: 1.2rem 1.8rem;
+  border-radius: 20px;
+  max-width: 550px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.verse-text {
+  font-size: 1rem;
+  font-style: italic;
+  color: #FFFFFF;
+  font-weight: 500;
+}
+
+.verse-ref {
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.btn-rsvp {
+  background: transparent;
+  border: 2px solid;
+  color: white;
+  padding: 14px 36px;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  margin-top: 2.5rem;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  border-radius: 50px;
+}
+
+.btn-rsvp:hover {
+  transform: translateY(-2px);
+}
+
+.hero-scroll {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: bounce 2s infinite;
+  cursor: pointer;
+  color: #FFF8F0;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(10px); }
+}
+
+.countdown {
+  padding: 80px 0;
+  transition: background 0.3s ease;
+}
+
+.countdown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+  max-width: 650px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.countdown-number {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: color 0.3s ease;
+}
+
+.countdown-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .countdown-number { font-size: 2.2rem; }
+  .countdown-label { font-size: 0.7rem; }
+}
+
+.story {
+  padding: 80px 0;
+  transition: background 0.3s ease;
+}
+
+.story-text {
+  max-width: 800px;
+  margin: 0 auto;
+  font-size: 1.2rem;
+  line-height: 1.9;
+  font-weight: 450;
+  text-align: center;
+}
+
+.logistics {
+  padding: 80px 0;
+  transition: background 0.3s ease;
+}
+
+.logistics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 35px;
+}
+
+.logistics-card {
+  text-align: center;
+  padding: 35px 25px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.logistics-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+}
+
+.logistics-card i {
+  font-size: 2.5rem;
+  margin-bottom: 1.2rem;
+  transition: color 0.3s ease;
+}
+
+.logistics-card h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.7rem;
+  margin-bottom: 0.8rem;
+}
+
+.logistics-card p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.map {
+  padding: 80px 0;
+  transition: background 0.3s ease;
+}
+
+.map-container {
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.gallery {
+  padding: 80px 0;
+  transition: background 0.3s ease;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 28px;
+}
+
+.gallery-grid img {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  border-radius: 20px;
+  transition: transform 0.4s, box-shadow 0.3s;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+.gallery-grid img:hover {
+  transform: scale(1.03);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+}
+
+.rsvp {
+  padding: 80px 0;
+  transition: background 0.3s ease;
+}
+
+.rsvp-subtitle {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-style: italic;
+  font-size: 1.1rem;
+}
+
+.rsvp-form {
+  max-width: 650px;
+  margin: 0 auto;
+  background: white;
+  padding: 2.5rem;
+  border-radius: 28px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.06);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid #E0D4C8;
+  border-radius: 50px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: #FFFFFF;
+  transition: border 0.3s;
+}
+
+.form-group textarea {
+  border-radius: 24px;
+  resize: vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #D4A853;
+  box-shadow: 0 0 0 3px rgba(212, 168, 83, 0.1);
+}
+
+.radio-group {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.btn-submit {
+  border: none;
+  padding: 16px;
+  width: 100%;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-radius: 50px;
+  font-weight: 600;
+  color: white;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+}
+
+.rsvp-message {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.chatbot {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+}
+
+.chatbot-button {
+  color: white;
+  padding: 14px 22px;
+  border-radius: 50px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  transition: all 0.3s;
+  font-weight: 600;
+}
+
+.chatbot-button:hover {
+  transform: scale(1.02);
+}
+
+.chatbot-window {
+  position: absolute;
+  bottom: 80px;
+  right: 0;
+  width: 350px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chatbot-window.active {
+  display: flex;
+}
+
+.chatbot-header {
+  background: #3E2720;
+  color: white;
+  padding: 16px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chatbot-header h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+}
+
+.chatbot-header button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+.chatbot-messages {
+  height: 320px;
+  overflow-y: auto;
+  padding: 16px;
+  background: #FEFAF5;
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  border-radius: 20px;
+  max-width: 85%;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.message.bot {
+  background: #F0E8E0;
+  align-self: flex-start;
+}
+
+.message.user {
+  color: white;
+  align-self: flex-end;
+}
+
+.chatbot-input {
+  display: flex;
+  padding: 14px;
+  border-top: 1px solid #E0D4C8;
+  background: white;
+}
+
+.chatbot-input input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #E0D4C8;
+  border-radius: 50px;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.chatbot-input button {
+  border: none;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 50px;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.footer {
+  text-align: center;
+  padding: 45px 20px;
+  background: #3E2720;
+  color: #FFF5EB;
+  font-size: 0.85rem;
+}
+
+.footer-hashtag {
+  margin-top: 12px;
+  letter-spacing: 1px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
