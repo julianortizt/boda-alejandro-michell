@@ -14,7 +14,7 @@
 <section class="hero" id="inicio">
     <div class="hero-overlay"></div>
     <div class="hero-content">
-        <div class="cross-icon">†</div>
+        <div class="cross-icon"></div>
         <h1 class="hero-title" id="couple-name">Alejandro & Michell</h1>
         <div class="hero-divider"></div>
         <p class="hero-date" id="wedding-date">Cargando...</p>
@@ -76,19 +76,17 @@
     </div>
 </section>
 
-<!-- MAPA (con idioma español forzado) -->
+<!-- MAPA -->
 <section class="map">
     <div class="container">
         <h2 class="section-title">¿Cómo llegar?</h2>
         <div class="map-container" id="map-container">
-            <iframe 
-                id="map-iframe"
+            <img 
+                id="map-image"
                 width="100%" 
                 height="400" 
-                frameborder="0" 
-                style="border:0; border-radius: 12px;" 
-                src="https://www.openstreetmap.org/export/embed.html?bbox=-99.150000%2C19.420000%2C-99.120000%2C19.445000&layer=mapnik&marker=19.432608%2C-99.133209&locale=es">
-            </iframe>
+                style="border:0; border-radius: 12px; object-fit: cover;"
+                alt="Mapa de ubicación de la boda">
         </div>
         <p id="map-address" style="text-align:center; margin-top:1rem; font-size:0.9rem;"></p>
     </div>
