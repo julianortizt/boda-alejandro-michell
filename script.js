@@ -1,20 +1,40 @@
 let weddingData = { config: {}, rsvps: [], photos: [] };
 let countdownInterval = null;
 
-// ========== BASE DE CONOCIMIENTO DEL CHATBOT ==========
+// ========== BASE DE CONOCIMIENTO DEL CHATBOT (se actualiza desde el servidor) ==========
 let bodaInfo = {
-    fecha: "20 de febrero de 2027",
-    hora: "3:00 PM",
-    lugar: "Basílica de Santa María de Guadalupe",
-    direccion: "Fray Juan de Zumárraga No. 1, Villa Gustavo A. Madero, 07050 CDMX",
-    recepcion: "Hacienda de los Morales",
-    direccionRecepcion: "Av. Miguel Ángel Quevedo 111, Vértiz Narvarte, 03600 CDMX",
+    fecha: "",
+    hora: "",
+    lugar: "",
+    direccion: "",
+    recepcion: "",
+    direccionRecepcion: "",
     codigoVestimenta: "Formal elegante (Blanco, Verde Menta y Amarillo) 🍋",
     estacionamiento: "Sí, hay estacionamiento gratuito en el lugar",
     ninos: "Todos los niños son bienvenidos. Habrá actividades especiales para ellos.",
-    confirmacion: "Por favor confirma antes del 20 de enero de 2027 usando el formulario en nuestra web",
-    whatsapp: "5216641117035"
+    confirmacion: "Por favor confirma antes del 20 de enero usando el formulario en nuestra web",
+    whatsapp: ""
 };
+
+// Función para actualizar la información del chatbot desde los datos del servidor
+function actualizarInfoChatbot(config) {
+    if (config.wedding_date) {
+        const fecha = new Date(config.wedding_date);
+        bodaInfo.fecha = fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+        // Calcular hora desde la fecha
+        const horas = fecha.getHours();
+        const minutos = fecha.getMinutes();
+        bodaInfo.hora = `${horas}:${minutos.toString().padStart(2, '0')} ${horas >= 12 ? 'PM' : 'AM'}`;
+    }
+    bodaInfo.lugar = config.venue_name || "Basílica de Guadalupe";
+    bodaInfo.direccion = config.venue_address || "Fray Juan de Zumárraga No. 1, Villa Gustavo A. Madero, 07050 Ciudad de México, CDMX";
+    bodaInfo.recepcion = config.reception_name || bodaInfo.lugar;
+    bodaInfo.direccionRecepcion = config.reception_address || bodaInfo.direccion;
+    bodaInfo.whatsapp = config.whatsapp_number || "5216641117035";
+    bodaInfo.confirmacion = `Por favor confirma antes del 20 de enero de ${new Date(config.wedding_date).getFullYear()} usando el formulario en nuestra web`;
+    
+    console.log('✅ Información del chatbot actualizada:', bodaInfo);
+}
 
 // Respuestas predefinidas del chatbot
 const respuestas = {
@@ -76,7 +96,7 @@ function obtenerRespuestaInteligente(mensaje) {
     }
     
     if (respuestas.confirmacion.some(p => msg.includes(p))) {
-        return `🍋 Para confirmar tu asistencia, usa el formulario en nuestra web. La fecha límite es ${bodaInfo.confirmacion}. ¡Te esperamos! 📝`;
+        return `🍋 Para confirmar tu asistencia, usa el formulario en nuestra web. ${bodaInfo.confirmacion} 📝`;
     }
     
     if (respuestas.gracias.some(p => msg.includes(p))) {
@@ -169,21 +189,26 @@ async function loadPublicData() {
         const res = await fetch('/get-data?_=' + Date.now());
         weddingData = await res.json();
         
+        // Actualizar nombres de la pareja
         document.getElementById('couple-name').innerText = weddingData.config?.couple_name || 'Alejandro & Michell';
+        
+        // Actualizar fecha y lugar en el hero
         const weddingDate = weddingData.config?.wedding_date;
+        let fechaStr = "";
         if (weddingDate) {
             const fecha = new Date(weddingDate);
-            const fechaStr = fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+            fechaStr = fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
             document.getElementById('wedding-date').innerText = fechaStr;
-            bodaInfo.fecha = fechaStr;
         }
         
         const venueName = weddingData.config?.venue_name || 'Basílica de Guadalupe';
         const venueAddress = weddingData.config?.venue_address || 'Fray Juan de Zumárraga No. 1, Villa Gustavo A. Madero, 07050 Ciudad de México, CDMX';
         const receptionName = weddingData.config?.reception_name || venueName;
+        const receptionAddress = weddingData.config?.reception_address || venueAddress;
         
         document.getElementById('venue-name').innerText = venueName;
         
+        // Actualizar tarjetas de logística
         const ceremonyNameEl = document.getElementById('ceremony-name');
         const ceremonyAddressEl = document.getElementById('ceremony-address');
         const receptionNameEl = document.getElementById('reception-name');
@@ -192,25 +217,12 @@ async function loadPublicData() {
         if (ceremonyNameEl) ceremonyNameEl.innerHTML = `<strong>${venueName}</strong>`;
         if (ceremonyAddressEl) ceremonyAddressEl.innerHTML = venueAddress;
         if (receptionNameEl) receptionNameEl.innerHTML = `<strong>${receptionName}</strong>`;
-        if (receptionAddressEl) {
-            if (weddingData.config?.reception_address) {
-                receptionAddressEl.innerHTML = weddingData.config.reception_address;
-            } else {
-                receptionAddressEl.innerHTML = venueAddress;
-            }
-        }
+        if (receptionAddressEl) receptionAddressEl.innerHTML = receptionAddress;
         
-        bodaInfo.lugar = venueName;
-        bodaInfo.direccion = venueAddress;
-        bodaInfo.recepcion = receptionName;
-        bodaInfo.whatsapp = weddingData.config?.whatsapp_number || '5216641117035';
+        // ACTUALIZAR LA INFORMACIÓN DEL CHATBOT
+        actualizarInfoChatbot(weddingData.config);
         
-        // Mostrar mensaje de galería personalizado
-        const galleryMsg = document.getElementById('gallery-message');
-        if (galleryMsg && weddingData.config?.gallery_message) {
-            galleryMsg.innerHTML = weddingData.config.gallery_message;
-        }
-        
+        // Actualizar mapa con coordenadas
         const coordinates = weddingData.config?.coordinates || '19.432608, -99.133209';
         const [lat, lng] = coordinates.split(',').map(coord => parseFloat(coord.trim()));
         
@@ -224,9 +236,18 @@ async function loadPublicData() {
             if (mapAddress) mapAddress.innerHTML = `📍 ${venueAddress} 🍋`;
         }
         
+        // Actualizar versículo e historia
         document.getElementById('verse-text').innerText = weddingData.config?.verse_text || 'El amor es paciente, es bondadoso...';
         document.getElementById('verse-ref').innerText = weddingData.config?.verse_reference || '1 Corintios 13:4-8';
         document.getElementById('story-text').innerText = weddingData.config?.story_text || 'Nos conocimos en la Ciudad de México en el 2019, compartiendo sueños y construyendo amor. Hoy, gracias a Jehova, celebramos nuestra unión.';
+        
+        // Actualizar mensaje de galería
+        const galleryMsg = document.getElementById('gallery-message');
+        if (galleryMsg && weddingData.config?.gallery_message) {
+            galleryMsg.innerHTML = weddingData.config.gallery_message;
+        } else if (galleryMsg) {
+            galleryMsg.innerHTML = '📸 Las fotos de nuestra boda estarán disponibles pronto';
+        }
         
         renderGallery();
         startCountdown();
@@ -392,5 +413,7 @@ function scrollToRSVP() {
     document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth' });
 }
 
+// Iniciar carga de datos
 loadPublicData();
+// Recargar datos cada 30 segundos para mantener actualizada la información
 setInterval(loadPublicData, 30000);
