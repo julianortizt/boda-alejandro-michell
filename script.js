@@ -21,7 +21,6 @@ function actualizarInfoChatbot(config) {
     if (config.wedding_date) {
         const fecha = new Date(config.wedding_date);
         bodaInfo.fecha = fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-        // Calcular hora desde la fecha
         const horas = fecha.getHours();
         const minutos = fecha.getMinutes();
         bodaInfo.hora = `${horas}:${minutos.toString().padStart(2, '0')} ${horas >= 12 ? 'PM' : 'AM'}`;
@@ -72,7 +71,7 @@ function obtenerRespuestaInteligente(mensaje) {
     }
     
     if (respuestas.hora.some(p => msg.includes(p))) {
-        return `🍋 La ceremonia comienza a las ${bodaInfo.hora}. Te recomendamos llegar 30 minutos antes para encontrar buen lugar. ⏰`;
+        return `🍋 La ceremonia comienza a las ${bodaInfo.hora}. Te recomendamos llegar 30 minutos antes. ⏰`;
     }
     
     if (respuestas.lugar.some(p => msg.includes(p))) {
@@ -194,13 +193,13 @@ async function loadPublicData() {
         
         // Actualizar fecha y lugar en el hero
         const weddingDate = weddingData.config?.wedding_date;
-        let fechaStr = "";
         if (weddingDate) {
             const fecha = new Date(weddingDate);
-            fechaStr = fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+            const fechaStr = fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
             document.getElementById('wedding-date').innerText = fechaStr;
         }
         
+        // IMPORTANTE: Usar los datos del servidor, NO valores hardcodeados
         const venueName = weddingData.config?.venue_name || 'Basílica de Guadalupe';
         const venueAddress = weddingData.config?.venue_address || 'Fray Juan de Zumárraga No. 1, Villa Gustavo A. Madero, 07050 Ciudad de México, CDMX';
         const receptionName = weddingData.config?.reception_name || venueName;
@@ -219,10 +218,10 @@ async function loadPublicData() {
         if (receptionNameEl) receptionNameEl.innerHTML = `<strong>${receptionName}</strong>`;
         if (receptionAddressEl) receptionAddressEl.innerHTML = receptionAddress;
         
-        // ACTUALIZAR LA INFORMACIÓN DEL CHATBOT
+        // ACTUALIZAR LA INFORMACIÓN DEL CHATBOT con los datos del servidor
         actualizarInfoChatbot(weddingData.config);
         
-        // Actualizar mapa con coordenadas
+        // Actualizar mapa con coordenadas del servidor
         const coordinates = weddingData.config?.coordinates || '19.432608, -99.133209';
         const [lat, lng] = coordinates.split(',').map(coord => parseFloat(coord.trim()));
         
@@ -415,5 +414,5 @@ function scrollToRSVP() {
 
 // Iniciar carga de datos
 loadPublicData();
-// Recargar datos cada 30 segundos para mantener actualizada la información
-setInterval(loadPublicData, 30000);
+// Recargar datos cada 10 segundos para mantener actualizada la información
+setInterval(loadPublicData, 10000);
