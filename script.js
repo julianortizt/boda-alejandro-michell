@@ -30,7 +30,7 @@ function actualizarInfoChatbot(config) {
     bodaInfo.recepcion = config.reception_name || bodaInfo.lugar;
     bodaInfo.direccionRecepcion = config.reception_address || bodaInfo.direccion;
     bodaInfo.whatsapp = config.whatsapp_number || "5216641117035";
-    bodaInfo.confirmacion = `Por favor confirma antes del 20 de enero de ${new Date(config.wedding_date).getFullYear()} usando el formulario en nuestra web`;
+    bodaInfo.confirmacion = `Por favor confirma antes del 20 de enero de ${new Date(config.wedding_date).getFullYear() || '2027'} usando el formulario en nuestra web`;
     
     console.log('✅ Información del chatbot actualizada:', bodaInfo);
 }
@@ -182,6 +182,29 @@ function applyTheme(themeName) {
     document.head.appendChild(style);
 }
 
+// ========== FUNCIÓN PARA ACTUALIZAR EL MAPA (en español) ==========
+function actualizarMapa(lat, lng, direccion) {
+    const mapImage = document.getElementById('map-image');
+    const mapAddress = document.getElementById('map-address');
+    
+    if (mapAddress && direccion) {
+        mapAddress.innerHTML = `📍 ${direccion} 🍋`;
+    }
+    
+    if (mapImage && !isNaN(lat) && !isNaN(lng)) {
+        // Usar Google Maps Static Image (idioma español forzado)
+        mapImage.src = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=800x400&markers=color:yellow%7C${lat},${lng}&language=es&region=mx`;
+        
+        // Fallback a OpenStreetMap si Google falla
+        mapImage.onerror = function() {
+            this.src = `https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.015}%2C${lat-0.015}%2C${lng+0.015}%2C${lat+0.015}&layer=mapnik&marker=${lat}%2C${lng}&hl=es`;
+            this.style.height = '400px';
+            this.style.width = '100%';
+            this.style.objectFit = 'cover';
+        };
+    }
+}
+
 // ========== FUNCIONES PRINCIPALES ==========
 async function loadPublicData() {
     try {
@@ -199,7 +222,6 @@ async function loadPublicData() {
             document.getElementById('wedding-date').innerText = fechaStr;
         }
         
-        // IMPORTANTE: Usar los datos del servidor, NO valores hardcodeados
         const venueName = weddingData.config?.venue_name || 'Basílica de Guadalupe';
         const venueAddress = weddingData.config?.venue_address || 'Fray Juan de Zumárraga No. 1, Villa Gustavo A. Madero, 07050 Ciudad de México, CDMX';
         const receptionName = weddingData.config?.reception_name || venueName;
@@ -218,22 +240,13 @@ async function loadPublicData() {
         if (receptionNameEl) receptionNameEl.innerHTML = `<strong>${receptionName}</strong>`;
         if (receptionAddressEl) receptionAddressEl.innerHTML = receptionAddress;
         
-        // ACTUALIZAR LA INFORMACIÓN DEL CHATBOT con los datos del servidor
+        // ACTUALIZAR LA INFORMACIÓN DEL CHATBOT
         actualizarInfoChatbot(weddingData.config);
         
-        // Actualizar mapa con coordenadas del servidor
+        // ========== MAPA ACTUALIZADO (ESPAÑOL) ==========
         const coordinates = weddingData.config?.coordinates || '19.432608, -99.133209';
         const [lat, lng] = coordinates.split(',').map(coord => parseFloat(coord.trim()));
-        
-        if (!isNaN(lat) && !isNaN(lng)) {
-            const mapIframe = document.getElementById('map-iframe');
-            if (mapIframe) {
-                const bbox = `${lng - 0.01},${lat - 0.01},${lng + 0.01},${lat + 0.01}`;
-                mapIframe.src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lng}`;
-            }
-            const mapAddress = document.getElementById('map-address');
-            if (mapAddress) mapAddress.innerHTML = `📍 ${venueAddress} 🍋`;
-        }
+        actualizarMapa(lat, lng, venueAddress);
         
         // Actualizar versículo e historia
         document.getElementById('verse-text').innerText = weddingData.config?.verse_text || 'El amor es paciente, es bondadoso...';
