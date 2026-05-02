@@ -1,34 +1,40 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const { Pool } = require('pg');
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '50mb' }));
 
-// ========== CONFIGURACIÓN DE ALMACENAMIENTO ==========
-// En Vercel, los archivos se guardan en /tmp (temporal)
-// En local, se guardan en la carpeta del proyecto
-const isVercel = process.env.VERCEL === '1' || process.env.NOW_REGION;
-const DATA_DIR = isVercel ? '/tmp' : __dirname;
-const DATA_FILE = path.join(DATA_DIR, 'data.json');
+// Configurar conexión a PostgreSQL
+let pool = null;
+let isUsingLocalFile = false;
 
-console.log(`📁 Modo: ${isVercel ? 'Vercel (serverless)' : 'Local'}`);
-console.log(`📁 Archivo de datos: ${DATA_FILE}`);
-
-// Servir archivos estáticos
-app.use(express.static('.'));
-
-// ========== FUNCIONES DE LECTURA/ESCRITURA ==========
-function readData() {
+async function initDatabase() {
     try {
-        if (fs.existsSync(DATA_FILE)) {
-            const data = fs.readFileSync(DATA_FILE, 'utf8');
-            return JSON.parse(data);
-        } else {
-            // Datos por defecto para la primera vez
+        pool = new Pool({
+            connectionString: process.env.DATABASE_URL,
+            ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+        });
+        await pool.query('SELECT NOW()');
+        console.log('✅ Conectado a PostgreSQL');
+        
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS wedding_data (
+                id SERIAL PRIMARY KEY,
+                config JSONB NOT NULL DEFAULT '{}',
+                rsvps JSONB NOT NULL DEFAULT '[]',
+                photos JSONB NOT NULL DEFAULT '[]',
+                updated_at TIMESTAMP DEFAULT NOW()
+            )
+        `);
+        
+        const result = await pool.query('SELECT * FROM wedding_data LIMIT 1');
+        if (result.rows.length === 0) {
             const defaultData = {
                 config: {
-                    wedding_date: "2025-06-15T16:00:00",
+                    wedding_date: "2026-05-12T15:00:00",
                     couple_name: "Alejandro & Michell",
                     venue_name: "Basílica de Santa María de Guadalupe",
                     venue_address: "Fray Juan de Zumárraga No. 1, Villa Gustavo A. Madero, 07050 Ciudad de México, CDMX",
@@ -36,159 +42,112 @@ function readData() {
                     reception_name: "Hacienda de los Morales",
                     reception_address: "Av. Miguel Ángel Quevedo 111, Vértiz Narvarte, 03600 Ciudad de México, CDMX",
                     whatsapp_number: "5216641117035",
-                    story_text: "Nos conocimos en la Ciudad de México en el 2019, compartiendo sueños y construyendo amor. Hoy, gracias a Dios, celebramos nuestra unión en esta hermosa ciudad llena de historia y tradición.",
+                    story_text: "Nos conocimos en la Ciudad de México en el 2019, compartiendo sueños y construyendo amor. Hoy, gracias a Jehova, celebramos nuestra unión.",
                     verse_text: "El amor es paciente, es bondadoso... El amor nunca deja de ser.",
                     verse_reference: "1 Corintios 13:4-8",
                     selected_theme: "blancoDorado"
                 },
                 rsvps: [],
                 photos: [
-                    {
-                        "id": "1",
-                        "url": "https://images.pexels.com/photos/2253870/pexels-photo-2253870.jpeg",
-                        "caption": "Preparativos"
-                    },
-                    {
-                        "id": "2",
-                        "url": "https://images.pexels.com/photos/261956/pexels-photo-261956.jpeg",
-                        "caption": "Anillos"
-                    }
+                    { id: "1", url: "https://images.pexels.com/photos/2253870/pexels-photo-2253870.jpeg", caption: "Preparativos" },
+                    { id: "2", url: "https://images.pexels.com/photos/261956/pexels-photo-261956.jpeg", caption: "Anillos" }
                 ]
             };
-            // Guardar datos por defecto
-            fs.writeFileSync(DATA_FILE, JSON.stringify(defaultData, null, 2));
-            return defaultData;
+            await pool.query(
+                'INSERT INTO wedding_data (config, rsvps, photos) VALUES ($1, $2, $3)',
+                [defaultData.config, defaultData.rsvps, defaultData.photos]
+            );
         }
-    } catch (error) {
-        console.error('Error leyendo datos:', error);
+    } catch (err) {
+        console.log('⚠️ No se pudo conectar a PostgreSQL, usando archivo local');
+        isUsingLocalFile = true;
+    }
+}
+
+async function getData() {
+    if (pool && !isUsingLocalFile) {
+        const result = await pool.query('SELECT config, rsvps, photos FROM wedding_data LIMIT 1');
+        return result.rows[0];
+    } else {
+        const dataPath = path.join(__dirname, 'data.json');
+        if (fs.existsSync(dataPath)) {
+            return JSON.parse(fs.readFileSync(dataPath));
+        }
         return { config: {}, rsvps: [], photos: [] };
     }
 }
 
-function writeData(data) {
-    try {
-        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-        console.log('✅ Datos guardados correctamente');
-        return true;
-    } catch (error) {
-        console.error('Error guardando datos:', error);
-        return false;
+async function saveData(config, rsvps, photos) {
+    if (pool && !isUsingLocalFile) {
+        await pool.query(
+            'UPDATE wedding_data SET config = $1, rsvps = $2, photos = $3, updated_at = NOW()',
+            [config, rsvps, photos]
+        );
+    } else {
+        const dataPath = path.join(__dirname, 'data.json');
+        fs.writeFileSync(dataPath, JSON.stringify({ config, rsvps, photos }, null, 2));
     }
 }
 
-// ========== ENDPOINTS API ==========
+// Servir archivos estáticos
+app.use(express.static('.'));
 
-// Obtener todos los datos
-app.get('/get-data', (req, res) => {
+// Endpoints
+app.get('/get-data', async (req, res) => {
     try {
-        const data = readData();
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        const data = await getData();
+        res.setHeader('Cache-Control', 'no-cache');
         res.json(data);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
-// Guardar RSVP
-app.post('/save-rsvp', (req, res) => {
+app.post('/save-rsvp', async (req, res) => {
     try {
-        const data = readData();
+        const data = await getData();
         data.rsvps = req.body.rsvps;
-        writeData(data);
-        res.json({ ok: true, message: 'RSVP guardado correctamente' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+        await saveData(data.config, data.rsvps, data.photos);
+        res.json({ ok: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
-// Guardar toda la configuración (admin)
-app.post('/save-data', (req, res) => {
+app.post('/save-data', async (req, res) => {
     try {
-        writeData(req.body);
-        res.json({ ok: true, message: 'Datos guardados correctamente' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+        await saveData(req.body.config, req.body.rsvps, req.body.photos);
+        res.json({ ok: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
-// Enviar recordatorios
-app.post('/send-reminders', (req, res) => {
+app.post('/send-reminders', async (req, res) => {
     try {
-        const data = readData();
+        const data = await getData();
         const { daysBefore, testMode, message } = req.body;
         const attendees = (data.rsvps || []).filter(r => r.attending === true);
         
-        const weddingDate = new Date(data.config.wedding_date);
-        const formattedDate = weddingDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-        
         const results = {
             total: attendees.length,
-            sent: 0,
-            failed: 0,
-            details: []
+            sent: attendees.length,
+            details: attendees.map(g => ({ name: g.name, status: testMode ? 'simulado' : 'pendiente' }))
         };
-        
-        attendees.forEach(guest => {
-            let personalizedMessage = message
-                .replace('{name}', guest.name || 'Invitado')
-                .replace('{date}', formattedDate)
-                .replace('{venue}', data.config.venue_name || 'Hacienda Santa Clara')
-                .replace('{address}', data.config.venue_address || 'Dirección por definir');
-            
-            results.details.push({
-                name: guest.name,
-                phone: guest.phone || 'No registrado',
-                whatsapp: guest.whatsapp || 'No registrado',
-                message: testMode ? personalizedMessage : 'Enviado (simulado)',
-                status: testMode ? 'simulado' : 'pendiente'
-            });
-            results.sent++;
-        });
-        
-        // Guardar log de recordatorios (opcional)
-        const reminderLog = {
-            date: new Date().toISOString(),
-            daysBefore: daysBefore,
-            total: attendees.length,
-            testMode: testMode
-        };
-        
-        const remindersFile = path.join(DATA_DIR, 'reminders.json');
-        let reminders = [];
-        try {
-            if (fs.existsSync(remindersFile)) {
-                reminders = JSON.parse(fs.readFileSync(remindersFile));
-            }
-        } catch(e) { reminders = []; }
-        reminders.push(reminderLog);
-        fs.writeFileSync(remindersFile, JSON.stringify(reminders, null, 2));
-        
         res.json(results);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
-// ========== RUTAS PARA ARCHIVOS ESTÁTICOS ==========
-// Asegurar que admin.html e index.html se sirvan correctamente
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html'));
-});
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// ========== INICIAR SERVIDOR (SOLO LOCAL) ==========
-if (!isVercel) {
-    const PORT = process.env.PORT || 3000;
+// Iniciar servidor
+initDatabase().then(() => {
     app.listen(PORT, () => {
         console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
         console.log(`📱 Web pública: http://localhost:${PORT}`);
         console.log(`🔧 Panel admin: http://localhost:${PORT}/admin.html`);
-        console.log(`📁 Datos guardados en: ${DATA_FILE}`);
+        console.log(`📁 Modo: ${isUsingLocalFile ? 'ARCHIVO LOCAL' : 'POSTGRESQL'}`);
     });
-}
+});
 
-// Exportar para Vercel
 module.exports = app;
