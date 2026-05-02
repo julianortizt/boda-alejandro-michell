@@ -10,63 +10,28 @@
 </head>
 <body>
 
-<!-- Rodajas de limón flotantes decorativas -->
-<div class="lemon-slice lemon-slice-1">🍋</div>
-<div class="lemon-slice lemon-slice-2">🍋</div>
-<div class="lemon-slice lemon-slice-3">🍋</div>
-<div class="lemon-slice lemon-slice-4">🍋</div>
-<div class="lemon-slice lemon-slice-5">🍋</div>
-<div class="lemon-slice lemon-slice-6">🍋</div>
-
-<!-- Ramas decorativas de limonero -->
-<div class="branch-decoration branch-top-left"></div>
-<div class="branch-decoration branch-bottom-right"></div>
-<div class="branch-decoration branch-top-right"></div>
-
-<!-- Limón SVG más realista -->
-<div class="lemon-slice-svg" style="top: 15%; left: 5%;">
-    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="50" r="45" fill="#F4D03F" stroke="#98D8C8" stroke-width="2"/>
-        <circle cx="50" cy="50" r="30" fill="#FFE57F"/>
-        <line x1="50" y1="5" x2="50" y2="95" stroke="#98D8C8" stroke-width="1.5"/>
-        <line x1="5" y1="50" x2="95" y2="50" stroke="#98D8C8" stroke-width="1.5"/>
-        <line x1="18" y1="18" x2="82" y2="82" stroke="#98D8C8" stroke-width="1.5"/>
-        <line x1="82" y1="18" x2="18" y2="82" stroke="#98D8C8" stroke-width="1.5"/>
-    </svg>
-</div>
-<div class="lemon-slice-svg" style="bottom: 10%; right: 5%;">
-    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="50" r="45" fill="#F4D03F" stroke="#98D8C8" stroke-width="2"/>
-        <circle cx="50" cy="50" r="30" fill="#FFE57F"/>
-        <line x1="50" y1="5" x2="50" y2="95" stroke="#98D8C8" stroke-width="1.5"/>
-        <line x1="5" y1="50" x2="95" y2="50" stroke="#98D8C8" stroke-width="1.5"/>
-        <line x1="18" y1="18" x2="82" y2="82" stroke="#98D8C8" stroke-width="1.5"/>
-        <line x1="82" y1="18" x2="18" y2="82" stroke="#98D8C8" stroke-width="1.5"/>
-    </svg>
-</div>
+<!-- RAMAS GLOBALES: solo 2, fijas, hacen parallax al hacer scroll -->
+<div class="rama-global rama-global-izq" aria-hidden="true"></div>
+<div class="rama-global rama-global-der" aria-hidden="true"></div>
 
 <!-- HERO -->
 <section class="hero" id="inicio">
     <div class="hero-overlay"></div>
     <div class="hero-content">
-        <div class="cross-icon">†</div>
+        <div class="cross-icon"></div>
         <h1 class="hero-title" id="couple-name">Michell & Alejandro</h1>
         <div class="hero-divider"></div>
         <p class="hero-date" id="wedding-date">Cargando...</p>
         <p class="hero-location" id="venue-name"></p>
-        
-        <!-- Decoración de limones -->
         <div class="lemon-decor">
             <span class="lemon">🍋</span>
             <span class="lemon">🍋</span>
             <span class="lemon">🍋</span>
         </div>
-        
         <div class="hero-verse" id="verse-container">
             <p class="verse-text" id="verse-text"></p>
             <p class="verse-ref" id="verse-ref"></p>
         </div>
-        
         <button class="btn-rsvp" onclick="scrollToRSVP()">Confirmar asistencia</button>
     </div>
     <div class="hero-scroll">

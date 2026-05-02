@@ -266,6 +266,13 @@ async function loadPublicData() {
         
         const savedTheme = weddingData.config?.selected_theme || 'limon';
         applyTheme(savedTheme);
+
+        // Actualizar imagen del banner si está configurada
+        const heroImage = weddingData.config?.hero_image;
+        if (heroImage && heroImage.startsWith('http')) {
+            const hero = document.querySelector('.hero');
+            if (hero) hero.style.backgroundImage = `url('${heroImage}')`;
+        }
         
     } catch (error) {
         console.error('Error cargando datos:', error);
@@ -429,3 +436,40 @@ function scrollToRSVP() {
 loadPublicData();
 // Recargar datos cada 10 segundos para mantener actualizada la información
 setInterval(loadPublicData, 10000);
+
+// ========== PARALLAX RAMAS GLOBALES ==========
+(function initParallax() {
+    const ramaIzq = document.querySelector('.rama-global-izq');
+    const ramaDer = document.querySelector('.rama-global-der');
+    if (!ramaIzq || !ramaDer) return;
+
+    let ticking = false;
+    let lastScroll = 0;
+
+    // Velocidades distintas para efecto más natural
+    const speedIzq = 0.15;
+    const speedDer = 0.12;
+
+    function applyParallax() {
+        const scrollY = window.scrollY;
+
+        // translateY se suma a la animación wave via CSS custom property
+        const offsetIzq = scrollY * speedIzq;
+        const offsetDer = scrollY * speedDer;
+
+        // Usamos style.top en lugar de transform para no interferir con la animación wave
+        ramaIzq.style.top = `${-20 + offsetIzq * 0.3}px`;
+        ramaDer.style.top = `${-20 + offsetDer * 0.3}px`;
+
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            requestAnimationFrame(applyParallax);
+            ticking = true;
+        }
+    }, { passive: true });
+
+    applyParallax();
+})();

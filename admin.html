@@ -104,6 +104,35 @@
             <div class="form-group"><label>🗺️ Coordenadas</label><input type="text" id="config-coordinates" placeholder="lat, lng"></div>
             <div class="form-group"><label>🎉 Lugar de recepción</label><input type="text" id="config-reception-name"></div>
         </div>
+        <div class="form-group" style="grid-column: 1 / -1;">
+            <label>🖼️ Imagen de fondo del banner</label>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <label style="
+                    display:flex; align-items:center; gap:8px;
+                    background:#98D8C8; color:white; padding:10px 20px;
+                    border-radius:50px; cursor:pointer; font-weight:600;
+                    transition:background 0.3s; white-space:nowrap;
+                " onmouseover="this.style.background='#F4D03F';this.style.color='#2D5A27'"
+                   onmouseout="this.style.background='#98D8C8';this.style.color='white'">
+                    📁 Subir desde PC
+                    <input type="file" id="hero-file-input" accept="image/*" style="display:none;">
+                </label>
+                <input type="url" id="config-hero-image"
+                    placeholder="O pega una URL: https://..."
+                    style="flex:1; border-radius:50px; padding:10px 18px; border:1px solid #ddd;">
+            </div>
+            <small style="color:#888; display:block;">Sube una foto desde tu PC o pega una URL (Pexels, Unsplash, etc.)</small>
+            <div id="hero-preview-wrap" style="margin-top:12px; display:none; position:relative;">
+                <img id="hero-preview-img" style="width:100%; max-height:200px; object-fit:cover; border-radius:12px; border:2px solid #98D8C8;" alt="Vista previa">
+                <button onclick="clearHeroImage()" style="
+                    position:absolute; top:8px; right:8px;
+                    background:rgba(0,0,0,0.5); color:white;
+                    border:none; border-radius:50%; width:28px; height:28px;
+                    cursor:pointer; font-size:14px; line-height:1;
+                " title="Quitar imagen">✕</button>
+                <small id="hero-size-note" style="color:#888; display:block; margin-top:4px;"></small>
+            </div>
+        </div>
         <div class="form-group"><label>📖 Historia</label><textarea id="config-story" rows="3"></textarea></div>
         <div class="row-2cols">
             <div class="form-group"><label>📜 Versículo</label><input type="text" id="config-verse-text"></div>
@@ -332,8 +361,72 @@
         document.getElementById('config-theme-text').value = cfg.theme_text || '';
         document.getElementById('config-gallery-message').value = cfg.gallery_message || '';
         document.getElementById('config-theme').value = cfg.selected_theme || 'limon';
+        // Banner
+        const heroVal = cfg.hero_image || '';
+        document.getElementById('config-hero-image').value = heroVal.startsWith('data:') ? '' : heroVal;
+        updateHeroPreview(heroVal);
         previewTheme();
     }
+
+    function updateHeroPreview(src) {
+        const wrap = document.getElementById('hero-preview-wrap');
+        const img  = document.getElementById('hero-preview-img');
+        const note = document.getElementById('hero-size-note');
+        if (src && (src.startsWith('http') || src.startsWith('data:'))) {
+            img.src = src;
+            wrap.style.display = 'block';
+            if (src.startsWith('data:')) {
+                const kb = Math.round(src.length * 0.75 / 1024);
+                note.textContent = `Tamaño aprox: ${kb > 1024 ? (kb/1024).toFixed(1)+' MB' : kb+' KB'}`;
+            } else {
+                note.textContent = '';
+            }
+        } else {
+            wrap.style.display = 'none';
+            img.src = '';
+        }
+    }
+
+    function clearHeroImage() {
+        adminData.config.hero_image = '';
+        document.getElementById('config-hero-image').value = '';
+        updateHeroPreview('');
+    }
+
+    // Subida desde PC
+    document.getElementById('hero-file-input')?.addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) return;
+        const maxMB = 5;
+        if (file.size > maxMB * 1024 * 1024) {
+            alert(`La imagen es muy grande (máx ${maxMB}MB). Por favor comprime la foto primero.`);
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Comprimir si es muy grande
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const maxW = 1920;
+                let w = img.width, h = img.height;
+                if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                const compressed = canvas.toDataURL('image/jpeg', 0.82);
+                adminData.config.hero_image = compressed;
+                document.getElementById('config-hero-image').value = '';
+                updateHeroPreview(compressed);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Vista previa al escribir URL
+    document.getElementById('config-hero-image')?.addEventListener('input', function() {
+        updateHeroPreview(this.value.trim());
+    });
     
     function loadIA() {
         document.getElementById('ia-whatsapp').value = adminData.config?.whatsapp_number || '';
@@ -363,6 +456,9 @@
         adminData.config.theme_text = document.getElementById('config-theme-text').value;
         adminData.config.gallery_message = document.getElementById('config-gallery-message').value;
         adminData.config.selected_theme = document.getElementById('config-theme').value;
+        adminData.config.hero_image = adminData.config.hero_image?.startsWith('data:')
+            ? adminData.config.hero_image
+            : document.getElementById('config-hero-image').value.trim();
         await saveAllData();
         document.getElementById('config-message').innerHTML = '<div class="success">✅ Configuración guardada</div>';
         setTimeout(() => document.getElementById('config-message').innerHTML = '', 3000);
