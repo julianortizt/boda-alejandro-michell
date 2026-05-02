@@ -3,94 +3,87 @@ let countdownInterval = null;
 
 // ========== BASE DE CONOCIMIENTO DEL CHATBOT ==========
 let bodaInfo = {
-    fecha: "12 de mayo de 2026",
+    fecha: "20 de febrero de 2027",
     hora: "3:00 PM",
     lugar: "Basílica de Santa María de Guadalupe",
     direccion: "Fray Juan de Zumárraga No. 1, Villa Gustavo A. Madero, 07050 CDMX",
     recepcion: "Hacienda de los Morales",
     direccionRecepcion: "Av. Miguel Ángel Quevedo 111, Vértiz Narvarte, 03600 CDMX",
-    codigoVestimenta: "Formal elegante (traje oscuro / vestido largo)",
+    codigoVestimenta: "Formal elegante (Blanco, Verde Menta y Amarillo) 🍋",
     estacionamiento: "Sí, hay estacionamiento gratuito en el lugar",
     ninos: "Todos los niños son bienvenidos. Habrá actividades especiales para ellos.",
-    confirmacion: "Por favor confirma antes del 20 de mayo usando el formulario en nuestra web",
+    confirmacion: "Por favor confirma antes del 20 de enero de 2027 usando el formulario en nuestra web",
     whatsapp: "5216641117035"
 };
 
 // Respuestas predefinidas del chatbot
 const respuestas = {
-    saludo: ["hola", "buenas", "hola asistente", "hey", "buenos días", "buenas tardes", "buenas noches", "holi", "hola!"],
+    saludo: ["hola", "buenas", "hola asistente", "hey", "buenos días", "buenas tardes", "buenas noches", "holi", "hola!", "hola"],
     fecha: ["qué día es", "cuándo es", "fecha", "día de la boda", "qué fecha", "cuándo se casa", "que dia", "fecha exacta"],
     hora: ["a qué hora", "hora", "horario", "qué hora", "cuándo empieza", "a que hora", "hora de la ceremonia"],
     lugar: ["dónde es", "ubicación", "lugar", "dirección", "cómo llegar", "donde es", "en que lugar"],
-    vestimenta: ["qué me pongo", "vestimenta", "código", "ropa", "traje", "vestido", "código de vestimenta", "como debo ir"],
-    ninos: ["niños", "puedo llevar niños", "familia", "menores", "bebés", "puedo ir con mi hijo"],
-    regalo: ["regalo", "mesa de regalos", "qué regalar", "presente", "regalos", "que puedo regalar"],
-    confirmacion: ["confirmar", "rsvp", "cómo confirmo", "asistencia", "confirmar asistencia"],
+    vestimenta: ["qué me pongo", "vestimenta", "código", "ropa", "traje", "vestido", "código de vestimenta", "como debo ir", "colores"],
+    ninos: ["niños", "puedo llevar niños", "familia", "menores", "bebés", "puedo ir con mi hijo", "niño", "hijos"],
+    regalo: ["regalo", "mesa de regalos", "qué regalar", "presente", "regalos", "que puedo regalar", "lista de regalos"],
+    confirmacion: ["confirmar", "rsvp", "cómo confirmo", "asistencia", "confirmar asistencia", "confirmación"],
     estacionamiento: ["estacionamiento", "parqueadero", "donde parquear", "parqueo", "parking"],
-    gracias: ["gracias", "ok", "perfecto", "listo", "excelente", "genial", "muchas gracias"],
-    adios: ["adiós", "chao", "bye", "hasta luego", "nos vemos", "salir"]
+    gracias: ["gracias", "ok", "perfecto", "listo", "excelente", "genial", "muchas gracias", "gracias!"],
+    limon: ["limón", "limones", "tematic", "decoración", "limon", "🍋"],
+    adios: ["adiós", "chao", "bye", "hasta luego", "nos vemos", "salir", "adios", "chao"]
 };
 
 function obtenerRespuestaInteligente(mensaje) {
     const msg = mensaje.toLowerCase().trim();
     
-    // Saludos
     if (respuestas.saludo.some(p => msg.includes(p))) {
-        return "¡Hola! Soy el asistente de la boda de Alejandro y Michell. ¿En qué puedo ayudarte? Puedo informarte sobre fecha, lugar, horario, vestimenta y más. ✨";
+        return "🍋 ¡Hola! Soy el asistente de la boda de Alejandro y Michell. ¿En qué puedo ayudarte? Puedo informarte sobre fecha, lugar, horario, vestimenta y más. ¡Nuestra temática son los limones! ✨";
     }
     
-    // Despedidas
+    if (respuestas.limon.some(p => msg.includes(p))) {
+        return "🍋 ¡Sí! Los limones son parte de nuestra temática. Los colores de nuestra boda son Blanco, Verde Menta y Amarillo. ¡Un toque fresco y alegre! 💚💛🤍";
+    }
+    
     if (respuestas.adios.some(p => msg.includes(p))) {
-        return "¡Gracias por visitar nuestra web! Que tengas un lindo día. 💒 ¡Nos vemos en la boda!";
+        return "🍋 ¡Gracias por visitar nuestra web! Que tengas un lindo día. ¡Nos vemos en la boda! 💒";
     }
     
-    // Fecha
     if (respuestas.fecha.some(p => msg.includes(p))) {
-        return `La boda será el ${bodaInfo.fecha} a las ${bodaInfo.hora}. ¡Te esperamos! 🗓️`;
+        return `🍋 La boda será el ${bodaInfo.fecha} a las ${bodaInfo.hora}. ¡Te esperamos! 🗓️`;
     }
     
-    // Hora
     if (respuestas.hora.some(p => msg.includes(p))) {
-        return `La ceremonia comienza a las ${bodaInfo.hora}. Te recomendamos llegar 30 minutos antes para encontrar buen lugar. ⏰`;
+        return `🍋 La ceremonia comienza a las ${bodaInfo.hora}. Te recomendamos llegar 30 minutos antes para encontrar buen lugar. ⏰`;
     }
     
-    // Lugar
     if (respuestas.lugar.some(p => msg.includes(p))) {
-        return `La ceremonia será en ${bodaInfo.lugar}. 📍 Dirección: ${bodaInfo.direccion}. La recepción será en ${bodaInfo.recepcion} (${bodaInfo.direccionRecepcion}).`;
+        return `🍋 La ceremonia será en ${bodaInfo.lugar}. 📍 Dirección: ${bodaInfo.direccion}. La recepción será en ${bodaInfo.recepcion} (${bodaInfo.direccionRecepcion}).`;
     }
     
-    // Vestimenta
     if (respuestas.vestimenta.some(p => msg.includes(p))) {
-        return `El código de vestimenta es: ${bodaInfo.codigoVestimenta}. ¡Nos vemos elegantes! 👔👗`;
+        return `🍋 El código de vestimenta es: ${bodaInfo.codigoVestimenta}. ¡Un toque de limón es bienvenido! 👔👗💛`;
     }
     
-    // Niños
     if (respuestas.ninos.some(p => msg.includes(p))) {
-        return `${bodaInfo.ninos} 🧸`;
+        return `🍋 ${bodaInfo.ninos} 🧸💚`;
     }
     
-    // Estacionamiento
     if (respuestas.estacionamiento.some(p => msg.includes(p))) {
-        return `${bodaInfo.estacionamiento} 🚗`;
+        return `🍋 ${bodaInfo.estacionamiento} 🚗`;
     }
     
-    // Regalo
     if (respuestas.regalo.some(p => msg.includes(p))) {
-        return `🎁 Tu presencia es el mejor regalo. Si deseas contribuir, tenemos una mesa de regalos en Liverpool. También puedes transferir al banco que aparece en la invitación.`;
+        return `🍋 Tu presencia es el mejor regalo. Si deseas contribuir, tenemos una mesa de regalos en Liverpool. 🎁 ¡Un detalle amarillo o verde sería perfecto!`;
     }
     
-    // Confirmación
     if (respuestas.confirmacion.some(p => msg.includes(p))) {
-        return `📝 Para confirmar tu asistencia, usa el formulario en nuestra web. La fecha límite es ${bodaInfo.confirmacion}. ¡Te esperamos!`;
+        return `🍋 Para confirmar tu asistencia, usa el formulario en nuestra web. La fecha límite es ${bodaInfo.confirmacion}. ¡Te esperamos! 📝`;
     }
     
-    // Agradecimientos
     if (respuestas.gracias.some(p => msg.includes(p))) {
-        return `💙 ¡A ti por ser parte de este día tan especial! Si necesitas algo más, aquí estoy.`;
+        return `🍋 ¡A ti por ser parte de este día tan especial! Que tengas un bendecido día. 💛💚`;
     }
     
-    // Respuesta por defecto
-    return `Gracias por tu mensaje. 📬 Para información más específica, puedes contactarnos directamente por WhatsApp al ${bodaInfo.whatsapp}. ¿Necesitas saber algo más sobre fecha, lugar o vestimenta? 💒`;
+    return `🍋 Gracias por tu mensaje. Para información más específica, puedes contactarnos directamente por WhatsApp al ${bodaInfo.whatsapp}. ¿Necesitas saber algo más sobre fecha, lugar o vestimenta? 💒 ¡Nuestra temática son los limones!`;
 }
 
 // ========== TEMAS DE COLOR ==========
@@ -102,12 +95,13 @@ const themes = {
     verdeOlivo: { bg: '#FAF9F6', text: '#424242', gold: '#556B2F', terra: '#4A5E2A', sectionBg: '#F7F6F0' },
     adobeCafe: { bg: '#F2E7DC', text: '#2D2926', gold: '#8B4513', terra: '#7A3B10', sectionBg: '#EDE2D4' },
     rosaPalo: { bg: '#FDF8F7', text: '#4F4F4F', gold: '#B39292', terra: '#A28282', sectionBg: '#FBF4F2' },
-    azulFe: { bg: '#002344', text: '#FFFFFF', gold: '#C5A02E', terra: '#B09020', sectionBg: '#001A33' },
-    vinoTinto: { bg: '#FBF9F6', text: '#4A4A4A', gold: '#60100B', terra: '#500E09', sectionBg: '#F8F5F0' }
+    malvaEmpolvado: { bg: '#FFFFFF', text: '#353535', gold: '#A68A8E', terra: '#957A7E', sectionBg: '#FCFAFA' },
+    nudeBronce: { bg: '#F9F1EF', text: '#2F2F2F', gold: '#A67C52', terra: '#966C42', sectionBg: '#F6EDEA' },
+    limon: { bg: '#FFFFFF', text: '#2D5A27', gold: '#F4D03F', terra: '#98D8C8', sectionBg: '#F0FFF0' }
 };
 
 function applyTheme(themeName) {
-    const theme = themes[themeName] || themes.blancoDorado;
+    const theme = themes[themeName] || themes.limon;
     
     document.body.style.backgroundColor = theme.bg;
     document.body.style.color = theme.text;
@@ -165,7 +159,7 @@ function applyTheme(themeName) {
     
     const style = document.createElement('style');
     style.id = 'dynamic-theme-style';
-    style.textContent = `.section-title:after { background: ${theme.gold} !important; }`;
+    style.textContent = `.section-title:after { content: '🍋'; background: transparent !important; }`;
     document.head.appendChild(style);
 }
 
@@ -179,9 +173,9 @@ async function loadPublicData() {
         const weddingDate = weddingData.config?.wedding_date;
         if (weddingDate) {
             const fecha = new Date(weddingDate);
-            document.getElementById('wedding-date').innerText = fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-            // Actualizar info del chatbot
-            bodaInfo.fecha = fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+            const fechaStr = fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('wedding-date').innerText = fechaStr;
+            bodaInfo.fecha = fechaStr;
         }
         
         const venueName = weddingData.config?.venue_name || 'Basílica de Guadalupe';
@@ -206,11 +200,16 @@ async function loadPublicData() {
             }
         }
         
-        // Actualizar info del chatbot
         bodaInfo.lugar = venueName;
         bodaInfo.direccion = venueAddress;
         bodaInfo.recepcion = receptionName;
         bodaInfo.whatsapp = weddingData.config?.whatsapp_number || '5216641117035';
+        
+        // Mostrar mensaje de galería personalizado
+        const galleryMsg = document.getElementById('gallery-message');
+        if (galleryMsg && weddingData.config?.gallery_message) {
+            galleryMsg.innerHTML = weddingData.config.gallery_message;
+        }
         
         const coordinates = weddingData.config?.coordinates || '19.432608, -99.133209';
         const [lat, lng] = coordinates.split(',').map(coord => parseFloat(coord.trim()));
@@ -222,17 +221,17 @@ async function loadPublicData() {
                 mapIframe.src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lng}`;
             }
             const mapAddress = document.getElementById('map-address');
-            if (mapAddress) mapAddress.innerHTML = `📍 ${venueAddress}`;
+            if (mapAddress) mapAddress.innerHTML = `📍 ${venueAddress} 🍋`;
         }
         
         document.getElementById('verse-text').innerText = weddingData.config?.verse_text || 'El amor es paciente, es bondadoso...';
         document.getElementById('verse-ref').innerText = weddingData.config?.verse_reference || '1 Corintios 13:4-8';
-        document.getElementById('story-text').innerText = weddingData.config?.story_text || 'Nos conocimos en la Ciudad de México en el 2019, compartiendo sueños y construyendo amor. Hoy, gracias a Dios, celebramos nuestra unión.';
+        document.getElementById('story-text').innerText = weddingData.config?.story_text || 'Nos conocimos en la Ciudad de México en el 2019, compartiendo sueños y construyendo amor. Hoy, gracias a Jehova, celebramos nuestra unión.';
         
         renderGallery();
         startCountdown();
         
-        const savedTheme = weddingData.config?.selected_theme || 'blancoDorado';
+        const savedTheme = weddingData.config?.selected_theme || 'limon';
         applyTheme(savedTheme);
         
     } catch (error) {
@@ -304,7 +303,7 @@ if (rsvpForm) {
         });
         
         const msgDiv = document.getElementById('rsvp-message');
-        msgDiv.innerHTML = '<div style="background:#d4edda;padding:1rem;border-radius:8px;margin-top:1rem;text-align:center;">✅ ¡Gracias por confirmar, te esperamos!</div>';
+        msgDiv.innerHTML = '<div style="background:#d4edda;padding:1rem;border-radius:8px;margin-top:1rem;text-align:center;">✅ ¡Gracias por confirmar, te esperamos! 🍋</div>';
         rsvpForm.reset();
         setTimeout(() => msgDiv.innerHTML = '', 5000);
     });
@@ -320,7 +319,7 @@ function agregarBotonesRapidos() {
     
     container.innerHTML = '';
     
-    const preguntas = ['📅 ¿Cuándo es?', '📍 ¿Dónde es?', '👔 ¿Qué me pongo?', '🎁 ¿Regalo?', '📝 Confirmar', '🚗 Parqueadero'];
+    const preguntas = ['📅 ¿Cuándo es?', '📍 ¿Dónde es?', '👔 ¿Qué me pongo?', '🎁 ¿Regalo?', '📝 Confirmar', '🚗 Parqueadero', '🍋 Temática'];
     
     preguntas.forEach(pregunta => {
         const btn = document.createElement('button');
@@ -328,7 +327,7 @@ function agregarBotonesRapidos() {
         btn.onclick = () => {
             const input = document.getElementById('chatbot-input');
             if (input) {
-                input.value = pregunta.replace(/[📅📍👔🎁📝🚗]/g, '').trim();
+                input.value = pregunta.replace(/[📅📍👔🎁📝🚗🍋]/g, '').trim();
                 enviarMensaje();
             }
         };
@@ -351,7 +350,7 @@ async function enviarMensaje() {
     
     if (respuesta.includes('WhatsApp')) {
         const waNumber = bodaInfo.whatsapp;
-        respuesta += `<br><a href="https://wa.me/${waNumber}" target="_blank">📱 Abrir WhatsApp</a>`;
+        respuesta += `<br><a href="https://wa.me/${waNumber}" target="_blank">📱 Abrir WhatsApp 🍋</a>`;
     }
     
     msgsDiv.innerHTML += `<div class="message bot">${respuesta}</div>`;

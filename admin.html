@@ -46,7 +46,7 @@
 <body>
 <div class="admin-container">
     <div class="admin-header">
-        <h1 class="admin-title">✨ Panel de Control | Boda de Alejandro & Michell</h1>
+        <h1 class="admin-title">✨ Panel de Control | Boda de Alejandro & Michell 🍋</h1>
         <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
     </div>
 
@@ -67,7 +67,7 @@
 
     <div id="rsvp-tab" class="tab-content active">
         <h2>Lista de invitados confirmados</h2>
-        <div style="overflow-x: auto;"><table id="rsvp-table"><thead><tr><th>Nombre</th><th>Email</th><th>Teléfono</th><th>WhatsApp</th><th>Acompañantes</th><th>Alergias</th><th>Canción</th><th>Fecha</th></tr></thead><tbody id="rsvp-list"></tbody></table></div>
+        <div style="overflow-x: auto;"><table id="rsvp-table"><thead><tr><th>Nombre</th><th>Email</th><th>Teléfono</th><th>WhatsApp</th><th>Acompañantes</th><th>Alergias</th><th>Canción</th><th>Fecha</th></tr></thead><tbody id="rsvp-list"></tbody>}</div>
         <button class="btn" onclick="exportToCSV()" style="margin-top:1rem;background:#27ae60;color:white;">📊 Exportar a Excel (CSV)</button>
     </div>
 
@@ -98,6 +98,15 @@
         </div>
         
         <div class="form-group">
+            <label>🍋 Texto de temática (ej: Nuestra boda con limones)</label>
+            <input type="text" id="config-theme-text" placeholder="Temática de la boda">
+        </div>
+        <div class="form-group">
+            <label>📸 Texto de galería (ej: Fotos disponibles después del 13 de mayo)</label>
+            <input type="text" id="config-gallery-message" placeholder="Mensaje de la galería">
+        </div>
+        
+        <div class="form-group">
             <label>🎨 Tema de colores para la web</label>
             <select id="config-theme" onchange="previewTheme()">
                 <optgroup label="✨ Luminosidad Espiritual">
@@ -115,10 +124,8 @@
                     <option value="malvaEmpolvado">🌸 Malva Empolvado</option>
                     <option value="nudeBronce">✨ Nude y Bronce</option>
                 </optgroup>
-                <optgroup label="👑 Solemne y Real">
-                    <option value="azulFe">💙 Azul Fe (Navy) y Oro</option>
-                    <option value="vinoTinto">🍷 Vino Tinto y Marfil</option>
-                    <option value="negroOroRosa">🌹 Negro y Oro Rosado</option>
+                <optgroup label="🍋 Temática Especial (Limones)">
+                    <option value="limon">🍋 Verde Menta y Amarillo (Temática Limones)</option>
                 </optgroup>
             </select>
             <div id="theme-preview" class="theme-preview"><small>🖌️ Vista previa:</small><div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;"><span class="color-swatch" id="preview-bg"></span><span class="color-swatch" id="preview-text"></span><span class="color-swatch" id="preview-gold"></span><span class="color-swatch" id="preview-terra"></span></div></div>
@@ -161,7 +168,7 @@
         
         <div class="form-group">
             <label>💬 Mensaje del recordatorio</label>
-            <textarea id="reminder-message" rows="4">¡Hola {name}! Este es un recordatorio de la boda de Alejandro y Michell. Te esperamos el día {date} en {venue}. ¡No faltes! 🎉</textarea>
+            <textarea id="reminder-message" rows="4">¡Hola {name}! Este es un recordatorio de la boda de Alejandro y Michell. Te esperamos el día {date} en {venue}. ¡No faltes! 🍋</textarea>
             <small>Variables: {name}, {date}, {venue}, {address}</small>
         </div>
         
@@ -185,7 +192,7 @@
         <h3>📋 Lista de asistentes confirmados</h3>
         <div style="overflow-x: auto;">
             <table id="attendees-table">
-                <thead><tr><th>Nombre</th><th>Teléfono</th><th>WhatsApp</th><th>Acompañantes</th><th>Alergias</th><th>Canción</th></td></thead>
+                <thead><tr><th>Nombre</th><th>Teléfono</th><th>WhatsApp</th><th>Acompañantes</th><th>Alergias</th><th>Canción</th></tr></thead>
                 <tbody id="attendees-list"></tbody>
             </table>
         </div>
@@ -196,22 +203,20 @@
     let adminData = { config: {}, rsvps: [], photos: [] };
     
     const themes = {
-        blancoDorado: { bg: '#FFFFFF', text: '#4A4A4A', gold: '#D4AF37', terra: '#C5A059', sectionBg: '#FDFDFD', name: 'Blanco Altar y Dorado' },
-        marfilLino: { bg: '#FFFDF5', text: '#333333', gold: '#BDB3A2', terra: '#A89F8E', sectionBg: '#FCFAF5', name: 'Marfil y Lino' },
-        cremaChampan: { bg: '#F9F6EE', text: '#5D5B57', gold: '#E7D4B5', terra: '#D4BFA0', sectionBg: '#F7F4EA', name: 'Crema y Champán' },
-        terracotaArena: { bg: '#F4EDE4', text: '#3E3633', gold: '#C27D63', terra: '#B06D53', sectionBg: '#F0E8DE', name: 'Terracota Suave y Arena' },
-        verdeOlivo: { bg: '#FAF9F6', text: '#424242', gold: '#556B2F', terra: '#4A5E2A', sectionBg: '#F7F6F0', name: 'Verde Olivo Sagrado' },
-        adobeCafe: { bg: '#F2E7DC', text: '#2D2926', gold: '#8B4513', terra: '#7A3B10', sectionBg: '#EDE2D4', name: 'Adobe y Café Profundo' },
-        rosaPalo: { bg: '#FDF8F7', text: '#4F4F4F', gold: '#B39292', terra: '#A28282', sectionBg: '#FBF4F2', name: 'Rosa Palo' },
-        malvaEmpolvado: { bg: '#FFFFFF', text: '#353535', gold: '#A68A8E', terra: '#957A7E', sectionBg: '#FCFAFA', name: 'Malva Empolvado' },
-        nudeBronce: { bg: '#F9F1EF', text: '#2F2F2F', gold: '#A67C52', terra: '#966C42', sectionBg: '#F6EDEA', name: 'Nude y Bronce' },
-        azulFe: { bg: '#002344', text: '#FFFFFF', gold: '#C5A02E', terra: '#B09020', sectionBg: '#001A33', name: 'Azul Fe (Navy) y Oro' },
-        vinoTinto: { bg: '#FBF9F6', text: '#4A4A4A', gold: '#60100B', terra: '#500E09', sectionBg: '#F8F5F0', name: 'Vino Tinto y Marfil' },
-        negroOroRosa: { bg: '#1A1A1A', text: '#FFFFFF', gold: '#E2B4B4', terra: '#D2A4A4', sectionBg: '#252525', name: 'Negro y Oro Rosado' }
+        blancoDorado: { bg: '#FFFFFF', text: '#4A4A4A', gold: '#D4AF37', terra: '#C5A059', sectionBg: '#FDFDFD', btnBg: '#D4AF37', btnHover: '#C5A059', name: 'Blanco Altar y Dorado' },
+        marfilLino: { bg: '#FFFDF5', text: '#333333', gold: '#BDB3A2', terra: '#A89F8E', sectionBg: '#FCFAF5', btnBg: '#BDB3A2', btnHover: '#A89F8E', name: 'Marfil y Lino' },
+        cremaChampan: { bg: '#F9F6EE', text: '#5D5B57', gold: '#E7D4B5', terra: '#D4BFA0', sectionBg: '#F7F4EA', btnBg: '#E7D4B5', btnHover: '#D4BFA0', name: 'Crema y Champán' },
+        terracotaArena: { bg: '#F4EDE4', text: '#3E3633', gold: '#C27D63', terra: '#B06D53', sectionBg: '#F0E8DE', btnBg: '#C27D63', btnHover: '#B06D53', name: 'Terracota Suave y Arena' },
+        verdeOlivo: { bg: '#FAF9F6', text: '#424242', gold: '#556B2F', terra: '#4A5E2A', sectionBg: '#F7F6F0', btnBg: '#556B2F', btnHover: '#4A5E2A', name: 'Verde Olivo Sagrado' },
+        adobeCafe: { bg: '#F2E7DC', text: '#2D2926', gold: '#8B4513', terra: '#7A3B10', sectionBg: '#EDE2D4', btnBg: '#8B4513', btnHover: '#7A3B10', name: 'Adobe y Café Profundo' },
+        rosaPalo: { bg: '#FDF8F7', text: '#4F4F4F', gold: '#B39292', terra: '#A28282', sectionBg: '#FBF4F2', btnBg: '#B39292', btnHover: '#A28282', name: 'Rosa Palo' },
+        malvaEmpolvado: { bg: '#FFFFFF', text: '#353535', gold: '#A68A8E', terra: '#957A7E', sectionBg: '#FCFAFA', btnBg: '#A68A8E', btnHover: '#957A7E', name: 'Malva Empolvado' },
+        nudeBronce: { bg: '#F9F1EF', text: '#2F2F2F', gold: '#A67C52', terra: '#966C42', sectionBg: '#F6EDEA', btnBg: '#A67C52', btnHover: '#966C42', name: 'Nude y Bronce' },
+        limon: { bg: '#FFFFFF', text: '#2D5A27', gold: '#F4D03F', terra: '#98D8C8', sectionBg: '#F0FFF0', btnBg: '#98D8C8', btnHover: '#F4D03F', name: '🍋 Verde Menta y Amarillo' }
     };
     
     function applyThemeToAdmin(themeName) {
-        const theme = themes[themeName] || themes.blancoDorado;
+        const theme = themes[themeName] || themes.limon;
         document.body.style.backgroundColor = theme.bg;
         document.body.style.color = theme.text;
         document.querySelectorAll('.stat-card').forEach(el => el.style.backgroundColor = theme.sectionBg);
@@ -249,7 +254,7 @@
             renderAttendeesList();
             loadConfigForm();
             loadIAForm();
-            const savedTheme = adminData.config?.selected_theme || 'blancoDorado';
+            const savedTheme = adminData.config?.selected_theme || 'limon';
             applyThemeToAdmin(savedTheme);
         } catch (error) { console.error('Error:', error); }
     }
@@ -302,7 +307,7 @@
     function exportToPDF() {
         const attendees = (adminData.rsvps || []).filter(r => r.attending === true);
         if (attendees.length === 0) { alert('No hay asistentes confirmados'); return; }
-        let html = `<html><head><title>Lista de Asistentes</title><style>body{font-family:Arial;margin:40px;} h1{color:#B85C4A;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #ddd;padding:10px;text-align:left;} th{background:#B85C4A;color:white;}</style></head><body><h1>🎊 Boda de Alejandro y Michell</h1><p>Fecha: ${new Date(adminData.config.wedding_date).toLocaleDateString('es-ES')}</p><p>Lugar: ${adminData.config.venue_name}</p><h2>Lista de asistentes</h2><table><tr><th>Nombre</th><th>Teléfono</th><th>WhatsApp</th><th>Acompañantes</th><th>Alergias</th><th>Canción</th></tr>`;
+        let html = `<html><head><title>Lista de Asistentes</title><style>body{font-family:Arial;margin:40px;} h1{color:#2D5A27;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #ddd;padding:10px;text-align:left;} th{background:#98D8C8;color:white;}</style></head><body><h1>🎊 Boda de Alejandro y Michell 🍋</h1><p>Fecha: ${new Date(adminData.config.wedding_date).toLocaleDateString('es-ES')}</p><p>Lugar: ${adminData.config.venue_name}</p><h2>Lista de asistentes</h2><table><tr><th>Nombre</th><th>Teléfono</th><th>WhatsApp</th><th>Acompañantes</th><th>Alergias</th><th>Canción</th></tr>`;
         attendees.forEach(r => { html += `<tr><td>${r.name || '-'}</td><td>${r.phone || '-'}</td><td>${r.whatsapp || '-'}</td><td>${r.attendees || 1}</td><td>${r.allergies || '-'}</td><td>${r.song || '-'}</td></tr>`; });
         html += `</table><p>Total de invitados: ${attendees.reduce((a,b)=>a+(b.attendees||1),0)}</p></body></html>`;
         const win = window.open();
@@ -374,7 +379,9 @@
         document.getElementById('config-story').value = cfg.story_text || '';
         document.getElementById('config-verse-text').value = cfg.verse_text || '';
         document.getElementById('config-verse-ref').value = cfg.verse_reference || '';
-        document.getElementById('config-theme').value = cfg.selected_theme || 'blancoDorado';
+        document.getElementById('config-theme-text').value = cfg.theme_text || '';
+        document.getElementById('config-gallery-message').value = cfg.gallery_message || '';
+        document.getElementById('config-theme').value = cfg.selected_theme || 'limon';
         previewTheme();
     }
     
@@ -395,31 +402,26 @@
         adminData.config.story_text = document.getElementById('config-story').value;
         adminData.config.verse_text = document.getElementById('config-verse-text').value;
         adminData.config.verse_reference = document.getElementById('config-verse-ref').value;
+        adminData.config.theme_text = document.getElementById('config-theme-text').value;
+        adminData.config.gallery_message = document.getElementById('config-gallery-message').value;
         await saveAllData();
         applyThemeToAdmin(adminData.config.selected_theme);
-        document.getElementById('config-message').innerHTML = '<div class="success">✅ Configuración guardada</div>';
+        document.getElementById('config-message').innerHTML = '<div class="success">✅ Configuración guardada 🍋</div>';
         setTimeout(() => document.getElementById('config-message').innerHTML = '', 4000);
     }
     
     async function saveIANumber() {
         if (!adminData.config) adminData.config = {};
         let whatsappNumber = document.getElementById('ia-whatsapp').value.trim();
-        
-        // Limpiar el número: eliminar espacios, guiones, símbolos, +
         whatsappNumber = whatsappNumber.replace(/[\s\-\(\)\+]/g, '');
-        
-        // Validar que tenga al menos 10 dígitos
         if (whatsappNumber.length < 10) {
             document.getElementById('ia-message').innerHTML = '<div class="error">❌ Número inválido. Debe tener al menos 10 dígitos.</div>';
             setTimeout(() => document.getElementById('ia-message').innerHTML = '', 3000);
             return;
         }
-        
-        // Asegurar formato internacional sin + (México: 52)
         if (!whatsappNumber.startsWith('52') && whatsappNumber.length === 10) {
             whatsappNumber = '52' + whatsappNumber;
         }
-        
         adminData.config.whatsapp_number = whatsappNumber;
         await saveAllData();
         document.getElementById('ia-message').innerHTML = '<div class="success">✅ Número de WhatsApp guardado: +' + whatsappNumber + '</div>';
@@ -433,22 +435,15 @@
             alert('⚠️ Primero configura el número de WhatsApp en la pestaña Asistente IA');
             return;
         }
-        
-        // Limpiar número
         num = num.toString().replace(/[\s\-\(\)\+]/g, '');
-        
-        // Validar
         if (num.length < 10) {
             alert('⚠️ Número inválido. Debe tener al menos 10 dígitos.');
             return;
         }
-        
-        // Asegurar formato
         if (!num.startsWith('52') && num.length === 10) {
             num = '52' + num;
         }
-        
-        const testMessage = "Hola, soy un invitado probando el asistente IA de la boda de Alejandro y Michell. ¡Funciona correctamente! 🎉";
+        const testMessage = "Hola, soy un invitado probando el asistente IA de la boda de Alejandro y Michell. 🍋 ¡Funciona correctamente!";
         window.open(`https://wa.me/${num}?text=${encodeURIComponent(testMessage)}`, '_blank');
     }
     

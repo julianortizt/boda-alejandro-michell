@@ -1,25 +1,19 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
 const { Pool } = require('pg');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '50mb' }));
+app.use(express.static('.'));
 
-// Configurar conexión a PostgreSQL
-let pool = null;
-let isUsingLocalFile = false;
+// Configurar conexión a Supabase (PostgreSQL)
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+});
 
 async function initDatabase() {
     try {
-        pool = new Pool({
-            connectionString: process.env.DATABASE_URL,
-            ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
-        });
-        await pool.query('SELECT NOW()');
-        console.log('✅ Conectado a PostgreSQL');
-        
         await pool.query(`
             CREATE TABLE IF NOT EXISTS wedding_data (
                 id SERIAL PRIMARY KEY,
@@ -34,7 +28,7 @@ async function initDatabase() {
         if (result.rows.length === 0) {
             const defaultData = {
                 config: {
-                    wedding_date: "2026-05-12T15:00:00",
+                    wedding_date: "2027-02-20T16:00:00",
                     couple_name: "Alejandro & Michell",
                     venue_name: "Basílica de Santa María de Guadalupe",
                     venue_address: "Fray Juan de Zumárraga No. 1, Villa Gustavo A. Madero, 07050 Ciudad de México, CDMX",
@@ -42,10 +36,12 @@ async function initDatabase() {
                     reception_name: "Hacienda de los Morales",
                     reception_address: "Av. Miguel Ángel Quevedo 111, Vértiz Narvarte, 03600 Ciudad de México, CDMX",
                     whatsapp_number: "5216641117035",
-                    story_text: "Nos conocimos en la Ciudad de México en el 2019, compartiendo sueños y construyendo amor. Hoy, gracias a Jehova, celebramos nuestra unión.",
+                    story_text: "Nos conocimos en la Ciudad de México en el 2019, compartiendo sueños y construyendo amor. Hoy, gracias a Jehova, celebramos nuestra unión en esta hermosa ciudad llena de historia y tradición.",
                     verse_text: "El amor es paciente, es bondadoso... El amor nunca deja de ser.",
                     verse_reference: "1 Corintios 13:4-8",
-                    selected_theme: "blancoDorado"
+                    selected_theme: "limon",
+                    theme_text: "🍋 Nuestra boda con limones - Blanco, Verde Menta y Amarillo 🍋",
+                    gallery_message: "📸 Las fotos de nuestra boda estarán disponibles después del 13 de mayo de 2027"
                 },
                 rsvps: [],
                 photos: [
@@ -57,42 +53,28 @@ async function initDatabase() {
                 'INSERT INTO wedding_data (config, rsvps, photos) VALUES ($1, $2, $3)',
                 [defaultData.config, defaultData.rsvps, defaultData.photos]
             );
+            console.log('✅ Datos iniciales insertados');
         }
+        console.log('✅ Base de datos conectada y lista');
     } catch (err) {
-        console.log('⚠️ No se pudo conectar a PostgreSQL, usando archivo local');
-        isUsingLocalFile = true;
+        console.error('❌ Error inicializando base de datos:', err.message);
+        throw err;
     }
 }
 
 async function getData() {
-    if (pool && !isUsingLocalFile) {
-        const result = await pool.query('SELECT config, rsvps, photos FROM wedding_data LIMIT 1');
-        return result.rows[0];
-    } else {
-        const dataPath = path.join(__dirname, 'data.json');
-        if (fs.existsSync(dataPath)) {
-            return JSON.parse(fs.readFileSync(dataPath));
-        }
-        return { config: {}, rsvps: [], photos: [] };
-    }
+    const result = await pool.query('SELECT config, rsvps, photos FROM wedding_data LIMIT 1');
+    return result.rows[0];
 }
 
 async function saveData(config, rsvps, photos) {
-    if (pool && !isUsingLocalFile) {
-        await pool.query(
-            'UPDATE wedding_data SET config = $1, rsvps = $2, photos = $3, updated_at = NOW()',
-            [config, rsvps, photos]
-        );
-    } else {
-        const dataPath = path.join(__dirname, 'data.json');
-        fs.writeFileSync(dataPath, JSON.stringify({ config, rsvps, photos }, null, 2));
-    }
+    await pool.query(
+        'UPDATE wedding_data SET config = $1, rsvps = $2, photos = $3, updated_at = NOW()',
+        [config, rsvps, photos]
+    );
 }
 
-// Servir archivos estáticos
-app.use(express.static('.'));
-
-// Endpoints
+// Endpoints API
 app.get('/get-data', async (req, res) => {
     try {
         const data = await getData();
@@ -126,15 +108,12 @@ app.post('/save-data', async (req, res) => {
 app.post('/send-reminders', async (req, res) => {
     try {
         const data = await getData();
-        const { daysBefore, testMode, message } = req.body;
         const attendees = (data.rsvps || []).filter(r => r.attending === true);
-        
-        const results = {
+        res.json({
             total: attendees.length,
             sent: attendees.length,
-            details: attendees.map(g => ({ name: g.name, status: testMode ? 'simulado' : 'pendiente' }))
-        };
-        res.json(results);
+            details: attendees.map(g => ({ name: g.name, status: 'simulado' }))
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -142,12 +121,15 @@ app.post('/send-reminders', async (req, res) => {
 
 // Iniciar servidor
 initDatabase().then(() => {
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
         console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
         console.log(`📱 Web pública: http://localhost:${PORT}`);
         console.log(`🔧 Panel admin: http://localhost:${PORT}/admin.html`);
-        console.log(`📁 Modo: ${isUsingLocalFile ? 'ARCHIVO LOCAL' : 'POSTGRESQL'}`);
+        console.log(`🗄️ Base de datos: Supabase (PostgreSQL) 🍋`);
     });
+}).catch(err => {
+    console.error('❌ No se pudo conectar a la base de datos:', err.message);
+    process.exit(1);
 });
 
 module.exports = app;
