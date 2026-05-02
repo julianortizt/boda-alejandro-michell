@@ -3,19 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Alejandro & Michell | Nuestra Boda</title>
+    <title>Michell & Alejandro | Nuestra Boda</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&family=Raleway:wght@300;400;600&family=Merriweather:wght@300;400;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
+<!-- Rodajas de limón flotantes decorativas -->
+<div class="lemon-slice lemon-slice-1">🍋</div>
+<div class="lemon-slice lemon-slice-2">🍋</div>
+<div class="lemon-slice lemon-slice-3">🍋</div>
+<div class="lemon-slice lemon-slice-4">🍋</div>
+
 <!-- HERO -->
 <section class="hero" id="inicio">
     <div class="hero-overlay"></div>
     <div class="hero-content">
-        <div class="cross-icon"></div>
-        <h1 class="hero-title" id="couple-name">Alejandro & Michell</h1>
+        <div class="cross-icon">†</div>
+        <h1 class="hero-title" id="couple-name">Michell & Alejandro</h1>
         <div class="hero-divider"></div>
         <p class="hero-date" id="wedding-date">Cargando...</p>
         <p class="hero-location" id="venue-name"></p>
@@ -57,7 +63,6 @@
     <div class="container">
         <h2 class="section-title">Nuestra Historia</h2>
         <p class="story-text" id="story-text"></p>
-        <!-- Decoración de limones -->
         <div class="lemon-decor-small">
             <span>🍋</span> <span>💚</span> <span>🍋</span> <span>💛</span> <span>🍋</span>
         </div>
@@ -71,22 +76,17 @@
         <div class="logistics-grid">
             <div class="logistics-card"><i class="fas fa-church"></i><h3>Ceremonia religiosa</h3><p id="ceremony-time">3:00 PM</p><p id="ceremony-name"></p><p id="ceremony-address"></p></div>
             <div class="logistics-card"><i class="fas fa-glass-cheers"></i><h3>Recepción</h3><p id="reception-name"></p><p id="reception-address"></p></div>
-            <div class="logistics-card"><i class="fas fa-tshirt"></i><h3>Código de vestimenta</h3><p>Formal elegante</p><p>Colores: Blanco, Verde Menta y Amarillo</p><p>🍋 Un toque de limón es bienvenido 🍋</p></div>
+            <div class="logistics-card"><i class="fas fa-tshirt"></i><h3>Código de vestimenta</h3><p>Formal elegante</p><p>Colores sugeridos: Verde menta y amarillo limón</p><p>🍋 Un toque de limón es bienvenido 🍋</p></div>
         </div>
     </div>
 </section>
 
-<!-- MAPA -->
+<!-- MAPA (con idioma español forzado) -->
 <section class="map">
     <div class="container">
         <h2 class="section-title">¿Cómo llegar?</h2>
         <div class="map-container" id="map-container">
-            <img 
-                id="map-image"
-                width="100%" 
-                height="400" 
-                style="border:0; border-radius: 12px; object-fit: cover;"
-                alt="Mapa de ubicación de la boda">
+            <img id="map-image" width="100%" height="400" style="border:0; border-radius: 12px; object-fit: cover;" alt="Mapa de ubicación de la boda">
         </div>
         <p id="map-address" style="text-align:center; margin-top:1rem; font-size:0.9rem;"></p>
     </div>
@@ -124,7 +124,7 @@
     </div>
 </section>
 
-<!-- CHATBOT IA MEJORADO -->
+<!-- CHATBOT IA -->
 <div class="chatbot" id="chatbot">
     <div class="chatbot-button" id="chatbot-toggle">
         <i class="fas fa-robot"></i>
@@ -136,7 +136,7 @@
             <button id="chatbot-close">&times;</button>
         </div>
         <div class="chatbot-messages" id="chatbot-messages">
-            <div class="message bot">¡Hola! Soy el asistente IA de la boda de Alejandro y Michell. 🍋<br><br>Puedo ayudarte con:<br>📅 Fecha y hora<br>📍 Ubicación<br>👔 Código de vestimenta<br>🎁 Mesa de regalos<br>📝 Cómo confirmar asistencia<br><br>¿Qué necesitas saber?</div>
+            <div class="message bot">¡Hola! Soy el asistente IA de la boda de Michell y Alejandro en Tijuana. 🍋<br><br>Puedo ayudarte con:<br>📅 Fecha y hora<br>📍 Ubicación<br>👔 Código de vestimenta<br>🎁 Mesa de regalos<br>📝 Cómo confirmar asistencia<br><br>¿Qué necesitas saber?</div>
         </div>
         <div class="quick-buttons" id="quick-buttons"></div>
         <div class="chatbot-input">
@@ -147,8 +147,8 @@
 </div>
 
 <footer class="footer">
-    <p>© 2027 Alejandro & Michell — Con amor para nuestros invitados</p>
-    <p class="footer-hashtag">#AlejandroYMichell 🍋</p>
+    <p>© 2027 Michell & Alejandro — Con amor para nuestros invitados</p>
+    <p class="footer-hashtag">#MichellYAlejandro 🍋</p>
 </footer>
 
 <script src="script.js"></script>

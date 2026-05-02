@@ -6,16 +6,66 @@
 
 body {
   font-family: 'Montserrat', sans-serif;
-  background: linear-gradient(135deg, #FFFFFF 0%, #F0FFF0 100%);
-  color: #2D5A27;
+  background: linear-gradient(135deg, #FFFDF9 0%, #F5F8F3 100%);
+  color: #4A7C6B;
   line-height: 1.6;
   transition: all 0.3s ease;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Rodajas de limón flotantes decorativas */
+.lemon-slice {
+  position: fixed;
+  z-index: 0;
+  opacity: 0.15;
+  pointer-events: none;
+  animation: floatLemon 8s ease-in-out infinite;
+}
+
+.lemon-slice-1 {
+  top: 10%;
+  left: 2%;
+  width: 80px;
+  animation-delay: 0s;
+}
+
+.lemon-slice-2 {
+  bottom: 15%;
+  right: 3%;
+  width: 100px;
+  animation-delay: 2s;
+}
+
+.lemon-slice-3 {
+  top: 30%;
+  right: 5%;
+  width: 60px;
+  animation-delay: 4s;
+}
+
+.lemon-slice-4 {
+  bottom: 40%;
+  left: 5%;
+  width: 70px;
+  animation-delay: 6s;
+}
+
+@keyframes floatLemon {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(10deg);
+  }
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .section-title {
@@ -23,10 +73,10 @@ body {
   font-size: 2.8rem;
   text-align: center;
   margin-bottom: 2rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 1px;
+  color: #4A7C6B;
   transition: color 0.3s ease;
-  color: #2D5A27;
 }
 
 .section-title:after {
@@ -34,7 +84,7 @@ body {
   display: block;
   font-size: 2rem;
   margin: 0.5rem auto 0;
-  transition: all 0.3s ease;
+  background: transparent;
 }
 
 .hero {
@@ -51,7 +101,7 @@ body {
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.35);
 }
 
 .hero-content {
@@ -66,26 +116,26 @@ body {
   margin-bottom: 1rem;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
   transition: color 0.3s ease;
+  color: #F4D03F;
 }
 
 .hero-title {
   font-family: 'Cormorant Garamond', serif;
   font-size: 5rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 3px;
   color: white;
   text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
 }
 
 @media (max-width: 768px) {
-  .hero-title { font-size: 3rem; }
+  .hero-title { font-size: 2.8rem; }
 }
 
 .hero-divider {
   width: 100px;
   height: 2px;
   margin: 1.8rem auto;
-  transition: background 0.3s ease;
   background: #F4D03F;
 }
 
@@ -98,7 +148,7 @@ body {
 
 .hero-verse {
   margin-top: 2.5rem;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(12px);
   padding: 1.2rem 1.8rem;
   border-radius: 20px;
@@ -118,42 +168,7 @@ body {
   font-size: 0.85rem;
   margin-top: 0.5rem;
   font-weight: 600;
-  transition: color 0.3s ease;
   color: #F4D03F;
-}
-
-/* Decoración de limones */
-.lemon-decor {
-  text-align: center;
-  margin: 20px 0;
-  font-size: 2rem;
-  letter-spacing: 10px;
-  opacity: 0.8;
-}
-
-.lemon-decor-small {
-  text-align: center;
-  margin: 15px 0;
-  font-size: 1.3rem;
-  letter-spacing: 8px;
-  opacity: 0.6;
-}
-
-.lemon {
-  display: inline-block;
-  animation: float 3s ease-in-out infinite;
-}
-
-.lemon:nth-child(2) {
-  animation-delay: 1s;
-}
-.lemon:nth-child(3) {
-  animation-delay: 2s;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
 }
 
 .btn-rsvp {
@@ -166,13 +181,13 @@ body {
   cursor: pointer;
   margin-top: 2.5rem;
   transition: all 0.3s ease;
-  font-weight: 600;
+  font-weight: 500;
   border-radius: 50px;
 }
 
 .btn-rsvp:hover {
   background: #F4D03F;
-  color: #2D5A27;
+  color: #4A7C6B;
   transform: translateY(-2px);
 }
 
@@ -193,7 +208,7 @@ body {
 
 .countdown {
   padding: 80px 0;
-  transition: background 0.3s ease;
+  background: #F5F8F3;
 }
 
 .countdown-grid {
@@ -208,23 +223,22 @@ body {
 .countdown-number {
   font-family: 'Cormorant Garamond', serif;
   font-size: 3.5rem;
-  font-weight: 700;
+  font-weight: 600;
   background: white;
   padding: 0.5rem;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  transition: color 0.3s ease;
-  color: #98D8C8;
+  color: #F4D03F;
 }
 
 .countdown-label {
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 2px;
-  font-weight: 600;
+  font-weight: 500;
   margin-top: 0.5rem;
   display: block;
-  color: #2D5A27;
+  color: #4A7C6B;
 }
 
 @media (max-width: 768px) {
@@ -234,7 +248,7 @@ body {
 
 .story {
   padding: 80px 0;
-  transition: background 0.3s ease;
+  background: #FFFDF9;
 }
 
 .story-text {
@@ -242,14 +256,14 @@ body {
   margin: 0 auto;
   font-size: 1.2rem;
   line-height: 1.9;
-  font-weight: 450;
+  font-weight: 400;
   text-align: center;
-  color: #2D5A27;
+  color: #4A7C6B;
 }
 
 .logistics {
   padding: 80px 0;
-  transition: background 0.3s ease;
+  background: #F5F8F3;
 }
 
 .logistics-grid {
@@ -263,19 +277,18 @@ body {
   padding: 35px 25px;
   background: white;
   border-radius: 24px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .logistics-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.08);
 }
 
 .logistics-card i {
   font-size: 2.5rem;
   margin-bottom: 1.2rem;
-  transition: color 0.3s ease;
   color: #98D8C8;
 }
 
@@ -283,29 +296,29 @@ body {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.7rem;
   margin-bottom: 0.8rem;
-  color: #2D5A27;
+  color: #4A7C6B;
 }
 
 .logistics-card p {
   font-size: 0.95rem;
   line-height: 1.5;
-  color: #4A7C6B;
+  color: #7A9E8E;
 }
 
 .map {
   padding: 80px 0;
-  transition: background 0.3s ease;
+  background: #FFFDF9;
 }
 
 .map-container {
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
 }
 
 .gallery {
   padding: 80px 0;
-  transition: background 0.3s ease;
+  background: #F5F8F3;
 }
 
 .gallery-message {
@@ -329,17 +342,17 @@ body {
   border-radius: 20px;
   transition: transform 0.4s, box-shadow 0.3s;
   cursor: pointer;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
 }
 
 .gallery-grid img:hover {
-  transform: scale(1.03);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+  transform: scale(1.02);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
 }
 
 .rsvp {
   padding: 80px 0;
-  transition: background 0.3s ease;
+  background: #FFFDF9;
 }
 
 .rsvp-subtitle {
@@ -356,7 +369,7 @@ body {
   background: white;
   padding: 2.5rem;
   border-radius: 28px;
-  box-shadow: 0 8px 28px rgba(0,0,0,0.06);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.04);
 }
 
 .form-group {
@@ -368,7 +381,7 @@ body {
 .form-group textarea {
   width: 100%;
   padding: 14px 18px;
-  border: 1px solid #E0D4C8;
+  border: 1px solid #E0D8CC;
   border-radius: 50px;
   font-family: inherit;
   font-size: 0.95rem;
@@ -401,7 +414,7 @@ body {
   align-items: center;
   gap: 8px;
   font-weight: 500;
-  color: #2D5A27;
+  color: #4A7C6B;
 }
 
 .btn-submit {
@@ -413,14 +426,14 @@ body {
   cursor: pointer;
   transition: all 0.3s;
   border-radius: 50px;
-  font-weight: 600;
+  font-weight: 500;
   color: white;
   background: #98D8C8;
 }
 
 .btn-submit:hover {
   background: #F4D03F;
-  color: #2D5A27;
+  color: #4A7C6B;
   transform: translateY(-2px);
 }
 
@@ -446,14 +459,15 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
   transition: all 0.3s;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .chatbot-button:hover {
   background: #F4D03F;
   transform: scale(1.02);
+  color: #4A7C6B;
 }
 
 .chatbot-window {
@@ -463,7 +477,7 @@ body {
   width: 380px;
   background: white;
   border-radius: 24px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
   display: none;
   flex-direction: column;
   overflow: hidden;
@@ -474,7 +488,7 @@ body {
 }
 
 .chatbot-header {
-  background: #2D5A27;
+  background: #4A7C6B;
   color: white;
   padding: 16px 18px;
   display: flex;
@@ -499,7 +513,7 @@ body {
   height: 350px;
   overflow-y: auto;
   padding: 16px;
-  background: #FEFAF5;
+  background: #FFFDF9;
   display: flex;
   flex-direction: column;
 }
@@ -514,8 +528,8 @@ body {
 }
 
 .message.bot {
-  background: #F0FFF0;
-  color: #2D5A27;
+  background: #F0F5EE;
+  color: #4A7C6B;
   align-self: flex-start;
 }
 
@@ -547,8 +561,8 @@ body {
   flex-wrap: wrap;
   gap: 8px;
   padding: 12px;
-  background: #FEFAF5;
-  border-top: 1px solid #E0D4C8;
+  background: #FFFDF9;
+  border-top: 1px solid #E0D8CC;
 }
 
 .quick-buttons button {
@@ -565,21 +579,21 @@ body {
 
 .quick-buttons button:hover {
   background: #F4D03F;
-  color: #2D5A27;
+  color: #4A7C6B;
   transform: scale(1.02);
 }
 
 .chatbot-input {
   display: flex;
   padding: 14px;
-  border-top: 1px solid #E0D4C8;
+  border-top: 1px solid #E0D8CC;
   background: white;
 }
 
 .chatbot-input input {
   flex: 1;
   padding: 12px 16px;
-  border: 1px solid #E0D4C8;
+  border: 1px solid #E0D8CC;
   border-radius: 50px;
   font-family: inherit;
   font-size: 0.9rem;
@@ -598,14 +612,14 @@ body {
 
 .chatbot-input button:hover {
   background: #F4D03F;
-  color: #2D5A27;
+  color: #4A7C6B;
 }
 
 .footer {
   text-align: center;
   padding: 45px 20px;
-  background: #2D5A27;
-  color: #FFF5EB;
+  background: #4A7C6B;
+  color: #FFFDF9;
   font-size: 0.85rem;
 }
 
@@ -613,7 +627,6 @@ body {
   margin-top: 12px;
   letter-spacing: 1px;
   font-weight: 500;
-  transition: color 0.3s ease;
   color: #F4D03F;
 }
 
@@ -625,5 +638,8 @@ body {
   .quick-buttons button {
     font-size: 10px;
     padding: 4px 10px;
+  }
+  .lemon-slice {
+    display: none;
   }
 }

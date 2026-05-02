@@ -1,19 +1,19 @@
 {
   "config": {
     "wedding_date": "2027-02-20T16:00:00",
-    "couple_name": "Alejandro & Michell",
-    "venue_name": "Basílica de Santa María de Guadalupe",
-    "venue_address": "Fray Juan de Zumárraga No. 1, Villa Gustavo A. Madero, 07050 Ciudad de México, CDMX",
-    "coordinates": "19.432608, -99.133209",
-    "reception_name": "Hacienda de los Morales",
-    "reception_address": "Av. Miguel Ángel Quevedo 111, Vértiz Narvarte, 03600 Ciudad de México, CDMX",
+    "couple_name": "Michell & Alejandro",
+    "venue_name": "Hacienda Santa Clara",
+    "venue_address": "Carretera Libre Tijuana - Ensenada Km 30, Valle de Guadalupe, Baja California, México",
+    "coordinates": "32.0979, -116.5660",
+    "reception_name": "Hacienda Santa Clara",
+    "reception_address": "Carretera Libre Tijuana - Ensenada Km 30, Valle de Guadalupe, Baja California, México",
     "whatsapp_number": "5216641117035",
-    "story_text": "Nos conocimos en la Ciudad de México en el 2019, compartiendo sueños y construyendo amor. Hoy, gracias a Jehova, celebramos nuestra unión en esta hermosa ciudad llena de historia y tradición.",
+    "story_text": "Nos conocimos en Tijuana en el 2019, compartiendo sueños y construyendo amor. Hoy, gracias a Dios, celebramos nuestra unión en este hermoso país lleno de tradición y calidez.",
     "verse_text": "El amor es paciente, es bondadoso... El amor nunca deja de ser.",
     "verse_reference": "1 Corintios 13:4-8",
     "selected_theme": "limon",
-    "theme_text": "🍋 Nuestra boda con limones - Blanco, Verde Menta y Amarillo 🍋",
-    "gallery_message": "📸 Las fotos de nuestra boda estarán disponibles después del 13 de mayo de 2027"
+    "theme_text": "🍋 Nuestra boda con limones - Verde menta y amarillo limón 🍋",
+    "gallery_message": "📸 Las fotos de nuestra boda estarán disponibles próximamente"
   },
   "rsvps": [],
   "photos": [
