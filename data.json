@@ -1,31 +1,27 @@
 {
   "config": {
-    "wedding_date": "2027-02-20T16:00",
+    "wedding_date": "2027-02-20T16:00:00",
     "couple_name": "Michell & Alejandro",
-    "venue_name": "Hacienda Santa Clara",
-    "venue_address": "Carretera Libre Tijuana - Ensenada Km 30, Valle de Guadalupe, Baja California, México",
+    "venue_name": "48va Iglesia Apostólica de la Fe en Cristo Jesús (IAFCJ)",
+    "venue_address": "Tijuana, Colonia Cumbres del Rubí, Baja California, México",
     "coordinates": "32.0979, -116.5660",
     "reception_name": "Hacienda Santa Clara",
     "reception_address": "Carretera Libre Tijuana - Ensenada Km 30, Valle de Guadalupe, Baja California, México",
     "whatsapp_number": "5216641117035",
-    "story_text": "Nos conocimos en Tijuana en el 2019, compartiendo sueños y construyendo amor. Hoy, gracias a Dios, celebramos nuestra unión en este hermoso país lleno de tradición y calidez.",
-    "verse_text": "El amor es paciente, es bondadoso... El amor nunca deja de ser.",
+    "story_text": "Nos conocimos en Tijuana en el 2019, compartiendo sueños y construyendo amor. Hoy, gracias a Dios, celebramos nuestra unión.",
+    "verse_text": "El amor es paciente, es bondadoso...",
     "verse_reference": "1 Corintios 13:4-8",
     "selected_theme": "limon",
     "theme_text": "🍋 Nuestra boda con limones - Verde menta y amarillo limón 🍋",
     "gallery_message": "📸 Las fotos de nuestra boda estarán disponibles próximamente"
   },
-  "rsvps": [],
-  "photos": [
+  "slider_images": [
     {
-      "id": "1",
-      "url": "https://images.pexels.com/photos/2253870/pexels-photo-2253870.jpeg",
-      "caption": "Preparativos"
-    },
-    {
-      "id": "2",
-      "url": "https://images.pexels.com/photos/261956/pexels-photo-261956.jpeg",
-      "caption": "Anillos"
+      "id": "default",
+      "url": "https://images.pexels.com/photos/169197/pexels-photo-169197.jpeg",
+      "caption": "Nuestro gran día"
     }
-  ]
+  ],
+  "rsvps": [],
+  "photos": []
 }

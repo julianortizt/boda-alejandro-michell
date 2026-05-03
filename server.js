@@ -1,41 +1,67 @@
 const express = require('express');
 const { Pool } = require('pg');
+const fs = require('fs');
+const path = require('path');
 const app = express();
-const PORT = process.env.PORT || 10000; // Render usa el puerto 10000 por defecto
+const PORT = process.env.PORT || 10000;
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static('.'));
+app.use('/img', express.static(path.join(__dirname, 'img')));
+
+// Asegurar que la carpeta img existe
+const imgDir = path.join(__dirname, 'img');
+if (!fs.existsSync(imgDir)) {
+    fs.mkdirSync(imgDir, { recursive: true });
+    console.log('📁 Carpeta img creada');
+}
 
 // Variable para saber si estamos en modo local (sin DB) o con DB
 let dbConnected = false;
 let pool = null;
 
-// Datos por defecto para inicializar la boda. ¡Ajusta los valores que quieras!
+// Datos por defecto para inicializar la boda (actualizados a Tijuana)
 const DEFAULT_DATA = {
     config: {
         wedding_date: "2027-02-20T16:00:00",
-        couple_name: "Alejandro & Michell",
-        venue_name: "Basílica de Santa María de Guadalupe",
-        venue_address: "Fray Juan de Zumárraga No. 1, Villa Gustavo A. Madero, 07050 Ciudad de México, CDMX",
-        coordinates: "19.432608, -99.133209",
-        reception_name: "Hacienda de los Morales",
-        reception_address: "Av. Miguel Ángel Quevedo 111, Vértiz Narvarte, 03600 Ciudad de México, CDMX",
+        couple_name: "Michell & Alejandro",
+        venue_name: "48va Iglesia Apostólica de la Fe en Cristo Jesús (IAFCJ)",
+        venue_address: "Tijuana, Colonia Cumbres del Rubí, Baja California, México",
+        coordinates: "32.0979, -116.5660",
+        reception_name: "Hacienda Santa Clara",
+        reception_address: "Carretera Libre Tijuana - Ensenada Km 30, Valle de Guadalupe, Baja California, México",
         whatsapp_number: "5216641117035",
-        story_text: "Nos conocimos en la Ciudad de México en el 2019, compartiendo sueños y construyendo amor. Hoy, gracias a Jehova, celebramos nuestra unión en esta hermosa ciudad llena de historia y tradición.",
-        verse_text: "El amor es paciente, es bondadoso... El amor nunca deja de ser.",
+        story_text: "Nos conocimos en Tijuana en el 2019, compartiendo sueños y construyendo amor. Hoy, gracias a Dios, celebramos nuestra unión.",
+        verse_text: "El amor es paciente, es bondadoso...",
         verse_reference: "1 Corintios 13:4-8",
         selected_theme: "limon",
-        theme_text: "🍋 Nuestra boda con limones - Blanco, Verde Menta y Amarillo 🍋",
-        gallery_message: "📸 Las fotos de nuestra boda estarán disponibles después del 13 de mayo de 2027"
+        theme_text: "🍋 Nuestra boda con limones - Verde menta y amarillo limón 🍋",
+        gallery_message: "📸 Las fotos de nuestra boda estarán disponibles próximamente"
     },
+    slider_images: [
+        {
+            id: "default",
+            url: "https://images.pexels.com/photos/169197/pexels-photo-169197.jpeg",
+            caption: "Nuestro gran día"
+        }
+    ],
     rsvps: [],
-    photos: [
-        { id: "1", url: "https://images.pexels.com/photos/2253870/pexels-photo-2253870.jpeg", caption: "Preparativos" },
-        { id: "2", url: "https://images.pexels.com/photos/261956/pexels-photo-261956.jpeg", caption: "Anillos" }
-    ]
+    photos: []
 };
 
-// Función para intentar conectar a la base de datos usando DATABASE_URL
+// Función para guardar imagen en archivo local
+async function saveImageToFile(base64Data, filename) {
+    const matches = base64Data.match(/^data:image\/([A-Za-z-+\/]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+        throw new Error('Formato de imagen inválido');
+    }
+    const imageBuffer = Buffer.from(matches[2], 'base64');
+    const filepath = path.join(imgDir, filename);
+    fs.writeFileSync(filepath, imageBuffer);
+    return `/img/${filename}`;
+}
+
+// Función para intentar conectar a la base de datos
 async function connectToDatabase() {
     if (!process.env.DATABASE_URL) {
         console.log("⚠️ DATABASE_URL no está definida. Usando almacenamiento local (archivo).");
@@ -50,26 +76,24 @@ async function connectToDatabase() {
         await pool.query('SELECT NOW()');
         console.log("✅ Conectado a la base de datos (PostgreSQL/Supabase).");
 
-        // Crear la tabla si no existe. Usamos JSONB para los campos de JSON.
         await pool.query(`
             CREATE TABLE IF NOT EXISTS wedding_data (
                 id SERIAL PRIMARY KEY,
                 config JSONB NOT NULL,
-                rsvps JSONB NOT NULL,
-                photos JSONB NOT NULL,
+                slider_images JSONB NOT NULL DEFAULT '[]',
+                rsvps JSONB NOT NULL DEFAULT '[]',
+                photos JSONB NOT NULL DEFAULT '[]',
                 updated_at TIMESTAMP DEFAULT NOW()
             );
         `);
         console.log("✅ Tabla 'wedding_data' verificada/creada.");
 
-        // Verificar si la tabla está vacía
         const result = await pool.query('SELECT COUNT(*) FROM wedding_data');
         if (parseInt(result.rows[0].count) === 0) {
             console.log("💡 Tabla vacía. Insertando datos por defecto...");
-            // Insertar los datos por defecto. Los pasamos como JSON.stringify para asegurar el formato.
             await pool.query(
-                'INSERT INTO wedding_data (config, rsvps, photos) VALUES ($1, $2, $3)',
-                [JSON.stringify(DEFAULT_DATA.config), JSON.stringify(DEFAULT_DATA.rsvps), JSON.stringify(DEFAULT_DATA.photos)]
+                'INSERT INTO wedding_data (config, slider_images, rsvps, photos) VALUES ($1, $2, $3, $4)',
+                [JSON.stringify(DEFAULT_DATA.config), JSON.stringify(DEFAULT_DATA.slider_images), JSON.stringify(DEFAULT_DATA.rsvps), JSON.stringify(DEFAULT_DATA.photos)]
             );
             console.log("✅ Datos por defecto insertados.");
         }
@@ -80,16 +104,15 @@ async function connectToDatabase() {
     }
 }
 
-// Función para leer los datos (desde DB o desde archivo local como fallback)
+// Función para leer los datos
 async function getData() {
     if (dbConnected && pool) {
         try {
-            const result = await pool.query('SELECT config, rsvps, photos FROM wedding_data LIMIT 1');
+            const result = await pool.query('SELECT config, slider_images, rsvps, photos FROM wedding_data LIMIT 1');
             if (result.rows.length > 0) {
                 return result.rows[0];
             } else {
-                // Esto no debería pasar si insertamos los datos por defecto, pero por si acaso
-                return { config: DEFAULT_DATA.config, rsvps: DEFAULT_DATA.rsvps, photos: DEFAULT_DATA.photos };
+                return { config: DEFAULT_DATA.config, slider_images: DEFAULT_DATA.slider_images, rsvps: DEFAULT_DATA.rsvps, photos: DEFAULT_DATA.photos };
             }
         } catch (dbErr) {
             console.error("❌ Error leyendo desde BD, usando archivo local:", dbErr.message);
@@ -100,41 +123,37 @@ async function getData() {
     }
 }
 
-// Fallback: leer/escribir en un archivo local (útil para desarrollo local o si falla la DB)
+// Fallback: leer archivo local
 function readLocalData() {
-    const fs = require('fs');
-    const path = require('path');
     const localFilePath = path.join(__dirname, 'data.json');
     try {
         if (fs.existsSync(localFilePath)) {
             return JSON.parse(fs.readFileSync(localFilePath, 'utf8'));
         }
     } catch(e) { console.error("Error leyendo archivo local:", e); }
-    return { config: DEFAULT_DATA.config, rsvps: DEFAULT_DATA.rsvps, photos: DEFAULT_DATA.photos };
+    return { config: DEFAULT_DATA.config, slider_images: DEFAULT_DATA.slider_images, rsvps: DEFAULT_DATA.rsvps, photos: DEFAULT_DATA.photos };
 }
 
 function writeLocalData(data) {
-    const fs = require('fs');
-    const path = require('path');
     const localFilePath = path.join(__dirname, 'data.json');
     try {
         fs.writeFileSync(localFilePath, JSON.stringify(data, null, 2));
     } catch(e) { console.error("Error escribiendo archivo local:", e); }
 }
 
-async function saveData(config, rsvps, photos) {
+async function saveData(config, slider_images, rsvps, photos) {
     if (dbConnected && pool) {
         try {
             await pool.query(
-                'UPDATE wedding_data SET config = $1, rsvps = $2, photos = $3, updated_at = NOW()',
-                [JSON.stringify(config), JSON.stringify(rsvps), JSON.stringify(photos)]
+                'UPDATE wedding_data SET config = $1, slider_images = $2, rsvps = $3, photos = $4, updated_at = NOW()',
+                [JSON.stringify(config), JSON.stringify(slider_images), JSON.stringify(rsvps), JSON.stringify(photos)]
             );
         } catch (dbErr) {
             console.error("❌ Error guardando en BD, usando archivo local:", dbErr.message);
-            writeLocalData({ config, rsvps, photos });
+            writeLocalData({ config, slider_images, rsvps, photos });
         }
     } else {
-        writeLocalData({ config, rsvps, photos });
+        writeLocalData({ config, slider_images, rsvps, photos });
     }
 }
 
@@ -174,7 +193,7 @@ app.post('/save-rsvp', async (req, res) => {
     try {
         const data = await getData();
         data.rsvps = req.body.rsvps;
-        await saveData(data.config, data.rsvps, data.photos);
+        await saveData(data.config, data.slider_images, data.rsvps, data.photos);
         res.json({ ok: true });
     } catch (err) {
         console.error("Error en POST /save-rsvp:", err);
@@ -184,7 +203,7 @@ app.post('/save-rsvp', async (req, res) => {
 
 app.post('/save-data', async (req, res) => {
     try {
-        await saveData(req.body.config, req.body.rsvps, req.body.photos);
+        await saveData(req.body.config, req.body.slider_images, req.body.rsvps, req.body.photos);
         res.json({ ok: true });
     } catch (err) {
         console.error("Error en POST /save-data:", err);

@@ -3,20 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Alejandro & Michell | Nuestra Boda</title>
+    <title>Michell & Alejandro | Nuestra Boda</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&family=Raleway:wght@300;400;600&family=Merriweather:wght@300;400;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
-<!-- RAMAS GLOBALES: solo 2, fijas, hacen parallax al hacer scroll -->
+<!-- RAMAS GLOBALES -->
 <div class="rama-global rama-global-izq" aria-hidden="true"></div>
 <div class="rama-global rama-global-der" aria-hidden="true"></div>
 
-<!-- HERO -->
+<!-- HERO SLIDER -->
 <section class="hero" id="inicio">
-    <div class="hero-overlay"></div>
+    <!-- Contenedor de slides -->
+    <div class="hero-slides" id="hero-slides">
+        <!-- Los slides se generan dinámicamente desde JavaScript -->
+    </div>
+    
+    <!-- Controles del slider -->
+    <button class="slider-nav slider-prev" id="slider-prev">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="slider-nav slider-next" id="slider-next">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+    
+    <!-- Indicadores -->
+    <div class="slider-dots" id="slider-dots"></div>
+    
+    <!-- Contenido fijo sobre el slider -->
     <div class="hero-content">
         <div class="cross-icon"></div>
         <h1 class="hero-title" id="couple-name">Michell & Alejandro</h1>
@@ -34,6 +50,7 @@
         </div>
         <button class="btn-rsvp" onclick="scrollToRSVP()">Confirmar asistencia</button>
     </div>
+    
     <div class="hero-scroll">
         <i class="fas fa-chevron-down"></i>
     </div>
@@ -79,8 +96,8 @@
 <section class="map">
     <div class="container">
         <h2 class="section-title">¿Cómo llegar?</h2>
-        <div class="map-container" id="map-container">
-            <img id="map-image" width="100%" height="400" style="border:0; border-radius: 12px; object-fit: cover;" alt="Mapa de ubicación de la boda">
+        <div class="map-container">
+            <iframe id="map-iframe" width="100%" height="400" frameborder="0" style="border:0; border-radius: 12px;" title="Mapa de ubicación"></iframe>
         </div>
         <p id="map-address" style="text-align:center; margin-top:1rem; font-size:0.9rem;"></p>
     </div>
