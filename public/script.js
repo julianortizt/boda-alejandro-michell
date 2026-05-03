@@ -395,10 +395,23 @@ function renderGallery() {
     }
     grid.innerHTML = photos.map((photo, i) => `
         <div class="gallery-item" onclick="openLightbox(${i})">
-            <img src="${photo.url}" alt="${photo.caption || 'Foto boda'}" loading="lazy">
+            <div class="gallery-item-img-wrap" id="imgwrap-${i}">
+                <img src="${photo.url}"
+                     alt="${photo.caption || 'Foto boda'}"
+                     loading="lazy"
+                     onload="detectOrientation(this, 'imgwrap-${i}')">
+            </div>
             ${photo.caption ? `<div class="gallery-caption">${photo.caption}</div>` : ''}
         </div>
     `).join('');
+}
+
+function detectOrientation(img, wrapId) {
+    const wrap = document.getElementById(wrapId);
+    if (!wrap) return;
+    if (img.naturalWidth > img.naturalHeight) {
+        wrap.classList.add('landscape');
+    }
 }
 
 // ===== LIGHTBOX =====
@@ -633,66 +646,64 @@ setInterval(loadPublicData, 10000);
 
     applyParallax();
 })();
-// ========== MÚSICA CRISTIANA — YouTube IFrame API ==========
-const DEFAULT_MUSIC_YT_ID = 'zKNJDdTJQII';
+// ========== MÚSICA CRISTIANA — Reproductor nativo ==========
+let audioPlayer = null;
+let musicPlaying = false;
+let currentTrackIndex = 0;
+let trackList = [];
 
-let ytPlayer       = null;
-let ytApiLoaded    = false;
-let ytPlayerReady  = false;
-let musicPlaying   = false;
-let ytVideoId      = DEFAULT_MUSIC_YT_ID;
-let pendingPlay    = false;
-
-// Cargar la API de YouTube una sola vez
-function loadYouTubeAPI() {
-    if (ytApiLoaded) return;
-    ytApiLoaded = true;
-    const tag = document.createElement('script');
-    tag.src = 'https://www.youtube.com/iframe_api';
-    document.head.appendChild(tag);
+function initAudioPlayer() {
+    if (audioPlayer) return;
+    audioPlayer = new Audio();
+    audioPlayer.loop = false;
+    audioPlayer.volume = 0.6;
+    audioPlayer.addEventListener('ended', () => {
+        // Siguiente canción al terminar
+        currentTrackIndex = (currentTrackIndex + 1) % trackList.length;
+        playTrack(currentTrackIndex);
+    });
+    audioPlayer.addEventListener('error', () => {
+        console.warn('Error reproduciendo audio');
+        setMusicUI(false);
+        musicPlaying = false;
+    });
 }
 
-// Callback global que llama YouTube cuando la API está lista
-window.onYouTubeIframeAPIReady = function() {
-    ytPlayer = new YT.Player('yt-player', {
-        height: '1',
-        width: '1',
-        videoId: ytVideoId || DEFAULT_MUSIC_YT_ID,
-        playerVars: {
-            autoplay: 0,
-            loop: 1,
-            playlist: ytVideoId,
-            controls: 0,
-            showinfo: 0,
-            rel: 0,
-            iv_load_policy: 3,
-            modestbranding: 1
-        },
-        events: {
-            onReady: function(e) {
-                ytPlayerReady = true;
-                e.target.setVolume(70);
-                if (pendingPlay) {
-                    e.target.playVideo();
-                    pendingPlay = false;
-                    setMusicUI(true);
-                }
-            },
-            onStateChange: function(e) {
-                // Si el video termina (estado 0) reiniciar
-                if (e.data === YT.PlayerState.ENDED) {
-                    e.target.playVideo();
-                }
-            },
-            onError: function() {
-                setMusicUI(false);
-                musicPlaying = false;
-                const label = document.getElementById('music-label');
-                if (label) label.textContent = 'No disponible';
-            }
-        }
+function playTrack(index) {
+    if (!trackList.length) return;
+    currentTrackIndex = index;
+    audioPlayer.src = trackList[index].url;
+    audioPlayer.play().then(() => {
+        setMusicUI(true);
+        musicPlaying = true;
+        const nameEl = document.getElementById('music-song-name');
+        if (nameEl) nameEl.textContent = trackList[index].filename.replace(/\.[^/.]+$/, '').replace(/_/g, ' ');
+    }).catch(e => {
+        console.warn('Autoplay bloqueado:', e);
     });
-};
+}
+
+async function loadTrackList() {
+    try {
+        const res = await fetch('/list-music');
+        trackList = await res.json();
+        if (trackList.length > 0) {
+            initAudioPlayer();
+            const nameEl = document.getElementById('music-song-name');
+            if (nameEl) nameEl.textContent = trackList[0].filename.replace(/\.[^/.]+$/, '').replace(/_/g, ' ');
+            // Mostrar botón solo si hay música
+            const player = document.getElementById('music-player');
+            if (player) player.style.display = 'flex';
+        } else {
+            // Sin música — ocultar botón
+            const player = document.getElementById('music-player');
+            if (player) player.style.display = 'none';
+        }
+    } catch(e) {
+        const player = document.getElementById('music-player');
+        if (player) player.style.display = 'none';
+    }
+}
 
 function setMusicUI(playing) {
     const btn   = document.getElementById('music-btn');
@@ -710,39 +721,25 @@ function setMusicUI(playing) {
 }
 
 function toggleMusic() {
-    if (!ytApiLoaded) {
-        loadYouTubeAPI();
-        pendingPlay = true;
-        musicPlaying = true;
-        const label = document.getElementById('music-label');
-        if (label) label.textContent = 'Cargando...';
-        return;
-    }
-
-    if (!ytPlayerReady) {
-        pendingPlay = true;
-        musicPlaying = true;
-        return;
-    }
-
+    if (!trackList.length) return;
+    initAudioPlayer();
     if (!musicPlaying) {
-        ytPlayer.playVideo();
-        musicPlaying = true;
-        setMusicUI(true);
+        if (!audioPlayer.src || audioPlayer.src === window.location.href) {
+            playTrack(currentTrackIndex);
+        } else {
+            audioPlayer.play().then(() => {
+                setMusicUI(true);
+                musicPlaying = true;
+            });
+        }
     } else {
-        ytPlayer.pauseVideo();
+        audioPlayer.pause();
         musicPlaying = false;
         setMusicUI(false);
     }
 }
 
 function loadMusicConfig(config) {
-    ytVideoId = config?.music_yt_id || DEFAULT_MUSIC_YT_ID;
-    const songName = config?.music_song_name || 'Instrumental Cristiana';
-    const nameEl = document.getElementById('music-song-name');
-    if (nameEl) nameEl.textContent = songName;
-    // Si el player ya existe y cambió el video, actualizarlo
-    if (ytPlayerReady && ytPlayer) {
-        ytPlayer.cueVideoById({ videoId: ytVideoId, suggestedQuality: 'small' });
-    }
+    // Con audio nativo ya no se necesita config de YouTube
+    loadTrackList();
 }

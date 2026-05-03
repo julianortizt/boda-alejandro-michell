@@ -62,10 +62,43 @@
     <div class="tabs">
         <div class="tab active" data-tab="rsvp">📋 Confirmaciones</div>
         <div class="tab" data-tab="photos">🖼️ Galería</div>
+        <div class="tab" data-tab="music">🎵 Música</div>
         <div class="tab" data-tab="config">⚙️ Configuración</div>
         <div class="tab" data-tab="ia">🤖 Asistente IA</div>
         <div class="tab" data-tab="reminders">📧 Recordatorios</div>
         <div class="tab" data-tab="security">🔐 Seguridad</div>
+    </div>
+
+    <!-- ====== MÚSICA ====== -->
+    <div id="music-tab" class="tab-content">
+        <h2>🎵 Música de fondo</h2>
+        <p style="color:#666;margin-bottom:1.5rem;">
+            Sube archivos MP3 que sonarán en el sitio. Los invitados pueden activar/pausar con el botón flotante.
+            Se reproducen en orden y en bucle.
+        </p>
+
+        <div style="margin-bottom:1.5rem;">
+            <label class="upload-zone" style="cursor:pointer;display:block;max-width:400px;">
+                <i class="fas fa-music" style="font-size:2rem;color:#98D8C8;display:block;margin-bottom:0.5rem;"></i>
+                <strong>Subir archivo MP3</strong>
+                <small style="display:block;margin-top:4px;color:#888;">MP3, OGG, WAV — máx 20MB</small>
+                <input type="file" id="music-file-input" accept="audio/*" style="display:none;" onchange="uploadMusic(this)">
+            </label>
+        </div>
+
+        <div id="music-upload-msg"></div>
+
+        <div style="background:#f0fff0;border:1px solid #98D8C8;border-radius:10px;padding:1rem;margin-bottom:1.5rem;">
+            <strong>💡 Dónde conseguir música cristiana libre de derechos:</strong><br>
+            <small style="color:#555;">
+                • <a href="https://pixabay.com/music/search/christian/" target="_blank" style="color:#4A7C6B;">pixabay.com/music</a> — busca "christian instrumental" o "worship"<br>
+                • <a href="https://freemusicarchive.org" target="_blank" style="color:#4A7C6B;">freemusicarchive.org</a> — música libre de derechos<br>
+                • Himnos de la IAFCJ grabados por ti o con permiso de la iglesia
+            </small>
+        </div>
+
+        <h3>Lista de canciones <span id="music-count" style="font-size:0.85rem;color:#888;"></span></h3>
+        <div id="music-list" style="margin-top:1rem;"></div>
     </div>
 
     <!-- Pestaña: Seguridad -->
@@ -604,7 +637,68 @@
         }
     }
     
-    function logout() { if (confirm('¿Cerrar sesión?')) window.location.href = 'index.html'; }
+    function logout() { if (confirm('¿Cerrar sesión?')) window.location.href = 'login.html'; }
+
+    // ============ MÚSICA ============
+    async function loadMusicList() {
+        try {
+            const res    = await fetch('/list-music');
+            const tracks = await res.json();
+            const list   = document.getElementById('music-list');
+            const count  = document.getElementById('music-count');
+            if (!list) return;
+            if (count) count.textContent = `(${tracks.length} canción${tracks.length !== 1 ? 'es' : ''})`;
+            if (tracks.length === 0) {
+                list.innerHTML = '<p style="color:#888;">No hay canciones. Sube tu primer MP3.</p>';
+                return;
+            }
+            list.innerHTML = tracks.map(t => `
+                <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#f9f9f9;border-radius:10px;margin-bottom:8px;flex-wrap:wrap;">
+                    <span style="font-size:1.4rem;">🎵</span>
+                    <div style="flex:1;min-width:140px;">
+                        <strong style="color:#2D5A27;">${t.filename.replace(/\.[^/.]+$/, '').replace(/_/g,' ')}</strong><br>
+                        <small style="color:#888;">${t.filename}</small>
+                    </div>
+                    <audio controls src="${t.url}" style="height:32px;max-width:180px;"></audio>
+                    <button class="btn btn-danger" style="padding:6px 12px;" onclick="deleteMusic('${t.filename}')">🗑</button>
+                </div>
+            `).join('');
+        } catch(e) {
+            const list = document.getElementById('music-list');
+            if (list) list.innerHTML = '<p style="color:#e74c3c;">Error cargando música.</p>';
+        }
+    }
+
+    async function uploadMusic(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const msgDiv = document.getElementById('music-upload-msg');
+        msgDiv.innerHTML = '<div style="color:#888;">⏳ Subiendo archivo...</div>';
+        const formData = new FormData();
+        formData.append('music', file);
+        try {
+            const res  = await fetch('/upload-music', { method: 'POST', body: formData });
+            const data = await res.json();
+            if (data.ok) {
+                msgDiv.innerHTML = `<div class="success">✅ "${file.name}" subida correctamente.</div>`;
+                loadMusicList();
+                setTimeout(() => msgDiv.innerHTML = '', 4000);
+            } else {
+                msgDiv.innerHTML = `<div class="error">❌ ${data.error}</div>`;
+            }
+        } catch(e) {
+            msgDiv.innerHTML = `<div class="error">❌ Error: ${e.message}</div>`;
+        }
+        input.value = '';
+    }
+
+    async function deleteMusic(filename) {
+        if (!confirm(`¿Eliminar "${filename}"?`)) return;
+        await fetch(`/delete-music/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+        loadMusicList();
+    }
+
+    document.querySelector('[data-tab="music"]')?.addEventListener('click', loadMusicList);
     
     function changePassword() {
         const current = document.getElementById('sec-current').value;

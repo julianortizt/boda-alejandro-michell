@@ -177,7 +177,51 @@ app.post('/send-reminders', async (req, res) => {
     } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// ── SPA fallback: cualquier ruta desconocida → index.html ───────────────────
+// ── Subir música ─────────────────────────────────────────────────────────────
+const multer = require('multer');
+const musicDir = path.join(__dirname, 'public', 'music');
+if (!fs.existsSync(musicDir)) fs.mkdirSync(musicDir, { recursive: true });
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, musicDir),
+    filename:    (req, file, cb) => {
+        // Nombre limpio sin espacios
+        const clean = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+        cb(null, clean);
+    }
+});
+const upload = multer({
+    storage,
+    limits: { fileSize: 20 * 1024 * 1024 }, // 20MB máx
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('audio/')) cb(null, true);
+        else cb(new Error('Solo archivos de audio'));
+    }
+});
+
+app.post('/upload-music', upload.single('music'), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No se recibió archivo' });
+    res.json({ ok: true, filename: req.file.filename, url: `/music/${req.file.filename}` });
+});
+
+app.get('/list-music', (req, res) => {
+    try {
+        const files = fs.readdirSync(musicDir)
+            .filter(f => f.match(/\.(mp3|ogg|wav|m4a)$/i))
+            .map(f => ({ filename: f, url: `/music/${f}` }));
+        res.json(files);
+    } catch(e) { res.json([]); }
+});
+
+app.delete('/delete-music/:filename', (req, res) => {
+    try {
+        const file = path.join(musicDir, req.params.filename);
+        if (fs.existsSync(file)) fs.unlinkSync(file);
+        res.json({ ok: true });
+    } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── SPA fallback ──────────────────────────────────────────────────────────────
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
