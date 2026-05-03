@@ -281,8 +281,9 @@ function actualizarMapa(lat, lng, direccion) {
 
     const map = L.map('map-leaflet', { scrollWheelZoom: false }).setView([lat, lng], 15);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+        subdomains: 'abcd',
         maxZoom: 19
     }).addTo(map);
 
