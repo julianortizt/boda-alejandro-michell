@@ -388,14 +388,74 @@ async function loadPublicData() {
 function renderGallery() {
     const grid = document.getElementById('gallery-grid');
     if (!grid) return;
-    grid.innerHTML = '';
-    if (weddingData.photos && weddingData.photos.length > 0) {
-        weddingData.photos.forEach(photo => {
-            const div = document.createElement('div');
-            div.innerHTML = `<img src="${photo.url}" alt="${photo.caption}" loading="lazy" onclick="window.open('${photo.url}','_blank')">`;
-            grid.appendChild(div);
+    const photos = weddingData.photos || [];
+    if (photos.length === 0) {
+        grid.innerHTML = '<p style="text-align:center;color:#98D8C8;grid-column:1/-1;">📸 Las fotos estarán disponibles pronto</p>';
+        return;
+    }
+    grid.innerHTML = photos.map((photo, i) => `
+        <div class="gallery-item" onclick="openLightbox(${i})">
+            <img src="${photo.url}" alt="${photo.caption || 'Foto boda'}" loading="lazy">
+            ${photo.caption ? `<div class="gallery-caption">${photo.caption}</div>` : ''}
+        </div>
+    `).join('');
+}
+
+// ===== LIGHTBOX =====
+function openLightbox(index) {
+    const photos = weddingData.photos || [];
+    if (!photos[index]) return;
+
+    let lb = document.getElementById('lightbox');
+    if (!lb) {
+        lb = document.createElement('div');
+        lb.id = 'lightbox';
+        lb.innerHTML = `
+            <div class="lb-overlay" onclick="closeLightbox()"></div>
+            <div class="lb-content">
+                <button class="lb-close" onclick="closeLightbox()">✕</button>
+                <button class="lb-prev" onclick="changeLightbox(-1)">&#8249;</button>
+                <button class="lb-next" onclick="changeLightbox(1)">&#8250;</button>
+                <img id="lb-img" src="" alt="">
+                <p id="lb-caption"></p>
+                <span id="lb-counter"></span>
+            </div>
+        `;
+        document.body.appendChild(lb);
+        document.addEventListener('keydown', e => {
+            if (!document.getElementById('lightbox')?.classList.contains('active')) return;
+            if (e.key === 'Escape')     closeLightbox();
+            if (e.key === 'ArrowLeft')  changeLightbox(-1);
+            if (e.key === 'ArrowRight') changeLightbox(1);
         });
     }
+
+    lb.dataset.current = index;
+    updateLightbox(index);
+    lb.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function updateLightbox(index) {
+    const photos = weddingData.photos || [];
+    const photo  = photos[index];
+    if (!photo) return;
+    document.getElementById('lb-img').src = photo.url;
+    document.getElementById('lb-caption').textContent = photo.caption || '';
+    document.getElementById('lb-counter').textContent = `${index + 1} / ${photos.length}`;
+    document.getElementById('lightbox').dataset.current = index;
+}
+
+function changeLightbox(dir) {
+    const photos  = weddingData.photos || [];
+    const current = parseInt(document.getElementById('lightbox')?.dataset.current || 0);
+    updateLightbox((current + dir + photos.length) % photos.length);
+}
+
+function closeLightbox() {
+    const lb = document.getElementById('lightbox');
+    if (lb) lb.classList.remove('active');
+    document.body.style.overflow = '';
 }
 
 function startCountdown() {
@@ -574,7 +634,7 @@ setInterval(loadPublicData, 10000);
     applyParallax();
 })();
 // ========== MÚSICA CRISTIANA — YouTube IFrame API ==========
-const DEFAULT_MUSIC_YT_ID = 'zKNJDdTJQII';
+const DEFAULT_MUSIC_YT_ID = 'UPbPHqFxsyc';
 
 let ytPlayer       = null;
 let ytApiLoaded    = false;
