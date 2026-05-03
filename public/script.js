@@ -574,7 +574,7 @@ setInterval(loadPublicData, 10000);
     applyParallax();
 })();
 // ========== MÚSICA CRISTIANA — YouTube IFrame API ==========
-const DEFAULT_MUSIC_YT_ID = 'UPbPHqFxsyc';
+const DEFAULT_MUSIC_YT_ID = 'zKNJDdTJQII';
 
 let ytPlayer       = null;
 let ytApiLoaded    = false;
