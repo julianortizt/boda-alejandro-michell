@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Alejandro & Michell | Nuestra Boda</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&family=Raleway:wght@300;400;600&family=Merriweather:wght@300;400;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Leaflet para mapa interactivo -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <style>
+        #map-leaflet {
+            height: 400px;
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            z-index: 1;
+        }
+        .leaflet-popup-content-wrapper {
+            border-radius: 14px !important;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .map-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 1rem;
+            padding: 12px 24px;
+            background: #4A7C6B;
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        .map-btn:hover { background: #F4D03F; color: #2D5A27; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+<!-- RAMAS GLOBALES: solo 2, fijas, hacen parallax al hacer scroll -->
+<div class="rama-global rama-global-izq" aria-hidden="true"></div>
+<div class="rama-global rama-global-der" aria-hidden="true"></div>
+
+<!-- HERO SLIDER -->
+<section class="hero" id="inicio">
+    <!-- Slides container -->
+    <div class="hero-slides" id="hero-slides" aria-hidden="true">
+        <!-- Los slides se generan dinámicamente desde script.js -->
+    </div>
+    <div class="hero-overlay"></div>
+    <!-- Controles del slider -->
+    <button class="hero-slider-btn hero-slider-prev" id="hero-prev" aria-label="Imagen anterior">&#8249;</button>
+    <button class="hero-slider-btn hero-slider-next" id="hero-next" aria-label="Imagen siguiente">&#8250;</button>
+    <div class="hero-slider-dots" id="hero-dots"></div>
+    <div class="hero-content">
+        <div class="cross-icon"></div>
+        <h1 class="hero-title" id="couple-name">Michell & Alejandro</h1>
+        <div class="hero-divider"></div>
+        <p class="hero-date" id="wedding-date">Cargando...</p>
+        <p class="hero-location" id="venue-name"></p>
+        <div class="lemon-decor">
+            <span class="lemon">🍋</span>
+            <span class="lemon">🍋</span>
+            <span class="lemon">🍋</span>
+        </div>
+        <div class="hero-verse" id="verse-container">
+            <p class="verse-text" id="verse-text"></p>
+            <p class="verse-ref" id="verse-ref"></p>
+        </div>
+        <button class="btn-rsvp" onclick="scrollToRSVP()">Confirmar asistencia</button>
+    </div>
+    <div class="hero-scroll">
+        <i class="fas fa-chevron-down"></i>
+    </div>
+</section>
+
+<!-- COUNTDOWN -->
+<section class="countdown">
+    <div class="container">
+        <h2 class="section-title">Faltan para nuestro gran día</h2>
+        <div class="countdown-grid">
+            <div class="countdown-item"><span class="countdown-number" id="days">00</span><span class="countdown-label">Días</span></div>
+            <div class="countdown-item"><span class="countdown-number" id="hours">00</span><span class="countdown-label">Horas</span></div>
+            <div class="countdown-item"><span class="countdown-number" id="minutes">00</span><span class="countdown-label">Minutos</span></div>
+            <div class="countdown-item"><span class="countdown-number" id="seconds">00</span><span class="countdown-label">Segundos</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- HISTORIA -->
+<section class="story">
+    <div class="container">
+        <h2 class="section-title">Nuestra Historia</h2>
+        <p class="story-text" id="story-text"></p>
+        <div class="lemon-decor-small">
+            <span>🍋</span> <span>💚</span> <span>🍋</span> <span>💛</span> <span>🍋</span>
+        </div>
+    </div>
+</section>
+
+<!-- LOGÍSTICA -->
+<section class="logistics">
+    <div class="container">
+        <h2 class="section-title">Ceremonia & Recepción</h2>
+        <div class="logistics-grid">
+            <div class="logistics-card"><i class="fas fa-church"></i><h3>Ceremonia religiosa</h3><p id="ceremony-time">3:00 PM</p><p id="ceremony-name"></p><p id="ceremony-address"></p></div>
+            <div class="logistics-card"><i class="fas fa-glass-cheers"></i><h3>Recepción</h3><p id="reception-name"></p><p id="reception-address"></p></div>
+            <div class="logistics-card"><i class="fas fa-tshirt"></i><h3>Código de vestimenta</h3><p>Formal elegante</p><p>Colores sugeridos: Verde menta y amarillo limón</p><p>🍋 Un toque de limón es bienvenido 🍋</p></div>
+        </div>
+    </div>
+</section>
+
+<!-- MAPA -->
+<section class="map">
+    <div class="container">
+        <h2 class="section-title">¿Cómo llegar?</h2>
+        <div class="map-container" id="map-container">
+            <div id="map-leaflet"></div>
+        </div>
+        <div style="text-align:center; margin-top:1.2rem;">
+            <p id="map-address" style="font-size:0.9rem; color:#4A7C6B; margin-bottom:0.8rem;"></p>
+            <a id="map-directions-btn" class="map-btn" href="#" target="_blank">
+                <i class="fas fa-map-marked-alt"></i> Abrir en Google Maps
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- GALERÍA -->
+<section class="gallery">
+    <div class="container">
+        <h2 class="section-title">Galería de recuerdos</h2>
+        <p class="gallery-message" id="gallery-message"></p>
+        <div class="gallery-grid" id="gallery-grid"></div>
+        <div class="lemon-decor-small" style="margin-top: 2rem;">
+            <span>🍋</span> <span>💛</span> <span>🍋</span> <span>💚</span> <span>🍋</span>
+        </div>
+    </div>
+</section>
+
+<!-- RSVP -->
+<section class="rsvp" id="rsvp">
+    <div class="container">
+        <h2 class="section-title">Confirmar asistencia</h2>
+        <p class="rsvp-subtitle">Antes del 20 de Enero</p>
+        <form id="rsvp-form" class="rsvp-form">
+            <div class="form-group"><input type="text" id="guest-name" placeholder="Nombre completo *" required></div>
+            <div class="form-group"><input type="email" id="guest-email" placeholder="Correo electrónico"></div>
+            <div class="form-group"><input type="tel" id="guest-phone" placeholder="Teléfono de contacto"></div>
+            <div class="form-group"><input type="tel" id="guest-whatsapp" placeholder="WhatsApp (con código país, ej: 5216641117035)"></div>
+            <div class="form-group"><select id="guest-attendees"><option value="1">1 persona</option><option value="2">2 personas</option><option value="3">3 personas</option><option value="4">4 personas</option></select></div>
+            <div class="form-group"><textarea id="guest-allergies" placeholder="Alergias o restricciones alimenticias"></textarea></div>
+            <div class="form-group"><input type="text" id="guest-song" placeholder="Canción sugerida para la fiesta"></div>
+            <div class="form-group radio-group"><label>¿Asistirás?</label><label><input type="radio" name="attending" value="yes" checked> Sí, felizmente</label><label><input type="radio" name="attending" value="no"> No podré asistir</label></div>
+            <button type="submit" class="btn-submit">Confirmar asistencia</button>
+        </form>
+        <div id="rsvp-message" class="rsvp-message"></div>
+    </div>
+</section>
+
+<!-- CHATBOT IA -->
+<!-- BOTÓN DE MÚSICA FLOTANTE -->
+<div class="music-player" id="music-player">
+    <button class="music-btn" id="music-btn" onclick="toggleMusic()" title="Música">
+        <span class="music-icon" id="music-icon">🎵</span>
+        <span class="music-label" id="music-label">Música</span>
+    </button>
+    <div class="music-tooltip" id="music-tooltip">
+        <span id="music-song-name">Instrumental cristiana</span>
+    </div>
+</div>
+
+<!-- YouTube embed oculto — solo audio -->
+<div style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;">
+    <iframe id="yt-player" width="1" height="1" frameborder="0" allow="autoplay"></iframe>
+</div>
+
+<div class="chatbot" id="chatbot">
+    <div class="chatbot-button" id="chatbot-toggle">
+        <i class="fas fa-robot"></i>
+        <span>Asistente IA</span>
+    </div>
+    <div class="chatbot-window" id="chatbot-window">
+        <div class="chatbot-header">
+            <h4>💒 Asistente de boda</h4>
+            <button id="chatbot-close">&times;</button>
+        </div>
+        <div class="chatbot-messages" id="chatbot-messages">
+            <div class="message bot">¡Hola! Soy el asistente IA de la boda de Michell y Alejandro. 🍋<br><br>Puedo ayudarte con:<br>📅 Fecha y hora<br>📍 Ubicación<br>👔 Código de vestimenta<br>🎁 Mesa de regalos<br>📝 Cómo confirmar asistencia<br><br>¿Qué necesitas saber?</div>
+        </div>
+        <div class="quick-buttons" id="quick-buttons"></div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbot-input" placeholder="Escribe tu pregunta...">
+            <button id="chatbot-send"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>© 2027 Michell & Alejandro — Con amor para nuestros invitados</p>
+    <p class="footer-hashtag">#MichellYAlejandro 🍋</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

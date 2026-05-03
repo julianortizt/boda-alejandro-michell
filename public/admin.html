@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin | Boda Alejandro & Michell 🍋</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #F0FFF0; padding: 2rem; transition: all 0.3s ease; }
+        .admin-container { max-width: 1400px; margin: 0 auto; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #F4D03F; flex-wrap: wrap; gap: 1rem; }
+        .admin-title { font-size: 1.8rem; font-weight: 600; color: #2D5A27; }
+        .logout-btn { background: #2D5A27; color: white; padding: 0.5rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; }
+        .admin-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .stat-number { font-size: 2rem; font-weight: 700; color: #98D8C8; }
+        .stat-label { font-size: 0.8rem; color: #2D5A27; margin-top: 0.5rem; }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 2px solid #E0D4C8; flex-wrap: wrap; }
+        .tab { padding: 0.75rem 1.5rem; cursor: pointer; font-weight: 500; border-radius: 8px 8px 0 0; transition: 0.3s; background: #f5f5f5; }
+        .tab.active { background: white; border-bottom: 2px solid #F4D03F; color: #2D5A27; }
+        .tab-content { display: none; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); margin-top: 1rem; }
+        .tab-content.active { display: block; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f5f5f5; font-weight: 600; color: #2D5A27; }
+        .btn { padding: 0.5rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; margin-top: 1rem; transition: 0.3s; }
+        .btn-danger { background: #c0392b; color: white; }
+        .btn-primary { background: #98D8C8; color: #2D5A27; }
+        .btn-primary:hover { background: #F4D03F; }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #2D5A27; }
+        input, textarea, select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 0.9rem; }
+        textarea { resize: vertical; min-height: 100px; }
+        .photo-preview { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; }
+        .photos-grid { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
+        .photo-card { text-align: center; background: #f9f9f9; padding: 0.5rem; border-radius: 8px; }
+        .success { background: #d4edda; color: #155724; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        .error { background: #f8d7da; color: #721c24; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        .row-2cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        hr { margin: 1.5rem 0; border: none; border-top: 1px solid #eee; }
+        .theme-preview { margin-top: 1rem; padding: 1rem; border-radius: 12px; background: #f5f5f5; }
+        .color-swatch { display: inline-block; width: 30px; height: 30px; border-radius: 8px; margin-right: 12px; border: 1px solid #ddd; }
+        @media (max-width: 768px) { body { padding: 1rem; } .row-2cols { grid-template-columns: 1fr; } .admin-stats { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+<div class="admin-container">
+    <div class="admin-header">
+        <h1 class="admin-title">✨ Panel de Control | Boda de Alejandro & Michell 🍋</h1>
+        <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+    </div>
+
+    <div class="admin-stats">
+        <div class="stat-card"><div class="stat-number" id="total-rsvp">0</div><div class="stat-label">Confirmaciones</div></div>
+        <div class="stat-card"><div class="stat-number" id="total-photos">0</div><div class="stat-label">Fotos</div></div>
+        <div class="stat-card"><div class="stat-number" id="total-attendees">0</div><div class="stat-label">Invitados totales</div></div>
+        <div class="stat-card"><div class="stat-number" id="wa-number">-</div><div class="stat-label">WhatsApp IA</div></div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" data-tab="rsvp">📋 Confirmaciones</div>
+        <div class="tab" data-tab="photos">🖼️ Galería</div>
+        <div class="tab" data-tab="config">⚙️ Configuración</div>
+        <div class="tab" data-tab="ia">🤖 Asistente IA</div>
+        <div class="tab" data-tab="reminders">📧 Recordatorios</div>
+        <div class="tab" data-tab="security">🔐 Seguridad</div>
+    </div>
+
+    <!-- Pestaña: Seguridad -->
+    <div id="security-tab" class="tab-content">
+        <h2>🔐 Seguridad del panel</h2>
+        <p style="color:#666;margin-bottom:1.5rem;">Cambia la contraseña de acceso al panel de administración.</p>
+        <div class="form-group">
+            <label>Contraseña actual</label>
+            <input type="password" id="sec-current" placeholder="Ingresa tu contraseña actual">
+        </div>
+        <div class="form-group">
+            <label>Nueva contraseña</label>
+            <input type="password" id="sec-new" placeholder="Mínimo 6 caracteres">
+        </div>
+        <div class="form-group">
+            <label>Confirmar nueva contraseña</label>
+            <input type="password" id="sec-confirm" placeholder="Repite la nueva contraseña">
+        </div>
+        <button class="btn btn-primary" onclick="changePassword()">🔐 Guardar nueva contraseña</button>
+        <div id="sec-message" style="margin-top:1rem;"></div>
+        <hr>
+        <div style="background:#fffbe6;border:1px solid #F4D03F;border-radius:10px;padding:1rem;margin-top:1rem;">
+            <strong>ℹ️ Información importante</strong><br>
+            <small style="color:#666;">
+                • La contraseña por defecto es <strong>boda2027</strong> — cámbiala pronto.<br>
+                • Se guarda en el navegador (localStorage). Si usas otro navegador deberás usar la contraseña guardada ahí.<br>
+                • La sesión expira cuando cierras el navegador.
+            </small>
+        </div>
+    </div>
+
+    <!-- Pestaña: Confirmaciones -->
+    <div id="rsvp-tab" class="tab-content active">
+        <h2>Lista de invitados confirmados</h2>
+        <div style="overflow-x: auto;">
+            <table id="rsvp-table">
+                <thead>
+                    <tr><th>Nombre</th><th>Email</th><th>Teléfono</th><th>WhatsApp</th><th>Acompañantes</th><th>Alergias</th><th>Canción</th><th>Fecha</th></tr>
+                </thead>
+                <tbody id="rsvp-list"></tbody>
+            </table>
+        </div>
+        <button class="btn btn-primary" onclick="exportToCSV()" style="margin-top:1rem;">📊 Exportar a CSV</button>
+    </div>
+
+    <!-- Pestaña: Galería -->
+    <div id="photos-tab" class="tab-content">
+        <h2>Subir nueva foto</h2>
+        <div class="form-group"><label>Seleccionar imagen</label><input type="file" id="photo-upload" accept="image/*"></div>
+        <div class="form-group"><label>Descripción</label><input type="text" id="photo-caption" placeholder="Ej: Preparativos, Iglesia..."></div>
+        <button class="btn btn-primary" onclick="uploadPhoto()">📤 Subir foto</button>
+        <div id="upload-message"></div>
+        <hr>
+        <h3>Fotos actuales</h3>
+        <div id="admin-photos-grid" class="photos-grid"></div>
+    </div>
+
+    <!-- Pestaña: Configuración -->
+    <div id="config-tab" class="tab-content">
+        <h2>Configuración de la boda</h2>
+        <div class="row-2cols">
+            <div class="form-group"><label>📅 Fecha</label><input type="datetime-local" id="config-date"></div>
+            <div class="form-group"><label>💑 Nombre de la pareja</label><input type="text" id="config-couple-name" placeholder="Alejandro & Michell"></div>
+            <div class="form-group"><label>⛪ Lugar de ceremonia</label><input type="text" id="config-venue-name"></div>
+            <div class="form-group"><label>📍 Dirección</label><input type="text" id="config-venue-address"></div>
+            <div class="form-group"><label>🗺️ Coordenadas</label><input type="text" id="config-coordinates" placeholder="lat, lng"></div>
+            <div class="form-group"><label>🎉 Lugar de recepción</label><input type="text" id="config-reception-name"></div>
+            <div class="form-group"><label>📍 Dirección recepción</label><input type="text" id="config-reception-address"></div>
+        </div>
+        <div class="form-group" style="grid-column: 1 / -1;">
+            <label>🖼️ Imágenes del slider hero (carrusel)</label>
+            <div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
+                <label style="
+                    display:flex; align-items:center; gap:8px;
+                    background:#98D8C8; color:white; padding:10px 20px;
+                    border-radius:50px; cursor:pointer; font-weight:600;
+                    transition:background 0.3s; white-space:nowrap;
+                " onmouseover="this.style.background='#F4D03F';this.style.color='#2D5A27'"
+                   onmouseout="this.style.background='#98D8C8';this.style.color='white'">
+                    📁 Subir desde PC
+                    <input type="file" id="hero-file-input" accept="image/*" multiple style="display:none;">
+                </label>
+                <input type="url" id="config-hero-url-input"
+                    placeholder="O pega una URL y presiona +"
+                    style="flex:1; border-radius:50px; padding:10px 18px; border:1px solid #ddd; min-width:200px;">
+                <button onclick="addHeroSlideFromUrl()" style="
+                    background:#2D5A27; color:white; border:none; border-radius:50px;
+                    padding:10px 22px; cursor:pointer; font-weight:600; font-size:1rem;
+                    white-space:nowrap;">+ Agregar URL</button>
+            </div>
+            <small style="color:#888; display:block; margin-bottom:10px;">Sube varias fotos o pega URLs. Las imágenes aparecerán en carrusel en el hero.</small>
+            <!-- Grid de slides actuales -->
+            <div id="hero-slides-admin" style="display:flex; flex-wrap:wrap; gap:12px; margin-top:8px;"></div>
+        </div>
+        <div class="form-group"><label>📖 Historia</label><textarea id="config-story" rows="3"></textarea></div>
+        <div class="row-2cols">
+            <div class="form-group"><label>📜 Versículo</label><input type="text" id="config-verse-text"></div>
+            <div class="form-group"><label>📖 Referencia</label><input type="text" id="config-verse-ref"></div>
+        </div>
+        <div class="form-group"><label>🍋 Texto de temática</label><input type="text" id="config-theme-text" placeholder="Temática de la boda"></div>
+        <div class="form-group"><label>📸 Mensaje de galería</label><input type="text" id="config-gallery-message" placeholder="Mensaje de la galería"></div>
+
+        <hr>
+        <h3 style="color:#2D5A27;margin-bottom:1rem;">🎵 Música de fondo</h3>
+        <p style="color:#666;font-size:0.85rem;margin-bottom:1rem;">
+            Pega el ID o URL de un video de YouTube con música instrumental cristiana.
+            El video quedará invisible — solo se escucha el audio.<br>
+            <strong>Ejemplo ID:</strong> si la URL es <code>youtube.com/watch?v=<u>UPbPHqFxsyc</u></code>, el ID es <code>UPbPHqFxsyc</code>
+        </p>
+        <div class="row-2cols">
+            <div class="form-group">
+                <label>🔗 ID del video de YouTube</label>
+                <input type="text" id="config-music-yt-id" placeholder="Ej: UPbPHqFxsyc">
+            </div>
+            <div class="form-group">
+                <label>🎼 Nombre de la canción (visible al usuario)</label>
+                <input type="text" id="config-music-name" placeholder="Ej: Instrumental Cristiana — Matrimonio">
+            </div>
+        </div>
+        <div style="background:#f0fff0;border:1px solid #98D8C8;border-radius:10px;padding:1rem;margin-bottom:1rem;">
+            <strong>💡 Sugerencias de YouTube para buscar:</strong><br>
+            <small style="color:#555;">
+                • "música instrumental cristiana matrimonio"<br>
+                • "wedding christian instrumental piano"<br>
+                • "alabanzas instrumentales para bodas"<br>
+                • "himnos cristianos instrumental piano"
+            </small>
+        </div>
+        <div class="form-group">
+            <label>🎨 Tema de colores</label>
+            <select id="config-theme">
+                <optgroup label="✨ Luminosidad Espiritual">
+                    <option value="blancoDorado">🏛️ Blanco Altar y Dorado</option>
+                    <option value="marfilLino">📜 Marfil y Lino</option>
+                    <option value="cremaChampan">🥂 Crema y Champán</option>
+                </optgroup>
+                <optgroup label="🌿 Hacienda Elegante">
+                    <option value="terracotaArena">🏺 Terracota Suave</option>
+                    <option value="verdeOlivo">🌱 Verde Olivo</option>
+                </optgroup>
+                <optgroup label="🍋 Especial Limones">
+                    <option value="limon">🍋 Verde Menta y Amarillo</option>
+                </optgroup>
+            </select>
+            <div id="theme-preview" class="theme-preview">
+                <small>Vista previa:</small>
+                <div style="display: flex; margin-top: 0.5rem;">
+                    <span class="color-swatch" id="preview-bg"></span>
+                    <span class="color-swatch" id="preview-text"></span>
+                    <span class="color-swatch" id="preview-gold"></span>
+                    <span class="color-swatch" id="preview-terra"></span>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveConfig()">💾 Guardar cambios</button>
+        <div id="config-message"></div>
+    </div>
+
+    <!-- Pestaña: Asistente IA -->
+    <div id="ia-tab" class="tab-content">
+        <h2>Configuración del Asistente IA</h2>
+        <p>El chatbot enviará automáticamente un mensaje de WhatsApp.</p>
+        <div class="form-group">
+            <label>📱 Número de WhatsApp (código país, sin +)</label>
+            <input type="tel" id="ia-whatsapp" placeholder="Ej: 5216641117035">
+            <small>México: 52 + 10 dígitos</small>
+        </div>
+        <button class="btn btn-primary" onclick="saveIANumber()">💾 Guardar número IA</button>
+        <div id="ia-message"></div>
+        <hr>
+        <button class="btn btn-primary" onclick="testWhatsApp()">📱 Probar enlace WhatsApp</button>
+    </div>
+
+    <!-- Pestaña: Recordatorios -->
+    <div id="reminders-tab" class="tab-content">
+        <h2>📧 Recordatorios automáticos</h2>
+        <div class="form-group">
+            <label>Días antes de la boda</label>
+            <select id="reminder-days">
+                <option value="1">1 día antes</option>
+                <option value="2">2 días antes</option>
+                <option value="3" selected>3 días antes</option>
+                <option value="5">5 días antes</option>
+                <option value="7">7 días antes</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Mensaje</label>
+            <textarea id="reminder-message" rows="4">¡Hola {name}! Este es un recordatorio de la boda de Alejandro y Michell. Te esperamos el día {date} en {venue}. 🍋</textarea>
+        </div>
+        <div class="row-2cols">
+            <button class="btn btn-primary" onclick="sendReminders(false)">📱 Enviar recordatorios (real)</button>
+            <button class="btn btn-primary" onclick="sendReminders(true)">🔍 Modo prueba (simular)</button>
+        </div>
+        <div id="reminder-result"></div>
+        <hr>
+        <h3>📄 Exportar lista de asistentes</h3>
+        <div class="row-2cols">
+            <button class="btn btn-primary" onclick="exportToPDF()">📑 Exportar a PDF</button>
+            <button class="btn btn-primary" onclick="exportToCSV()">📊 Exportar a Excel (CSV)</button>
+        </div>
+        <hr>
+        <h3>📋 Lista de asistentes confirmados</h3>
+        <div style="overflow-x: auto;">
+            <table id="attendees-table">
+                <thead><tr><th>Nombre</th><th>Teléfono</th><th>WhatsApp</th><th>Acompañantes</th><th>Alergias</th><th>Canción</th></tr></thead>
+                <tbody id="attendees-list"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let adminData = { config: {}, rsvps: [], photos: [] };
+    let heroSlides = []; // array de { url, caption } para el slider del hero
+
+    // ====== PROTECCIÓN DE SESIÓN ======
+    (function checkAuth() {
+        if (sessionStorage.getItem('admin_auth') !== '1') {
+            window.location.replace('login.html');
+        }
+    })();
+
+    function logout() {
+        if (confirm('¿Cerrar sesión?')) {
+            sessionStorage.removeItem('admin_auth');
+            window.location.replace('login.html');
+        }
+    }
+    
+    const themes = {
+        blancoDorado: { bg: '#FFFFFF', text: '#4A4A4A', gold: '#D4AF37', terra: '#C5A059' },
+        marfilLino: { bg: '#FFFDF5', text: '#333333', gold: '#BDB3A2', terra: '#A89F8E' },
+        cremaChampan: { bg: '#F9F6EE', text: '#5D5B57', gold: '#E7D4B5', terra: '#D4BFA0' },
+        terracotaArena: { bg: '#F4EDE4', text: '#3E3633', gold: '#C27D63', terra: '#B06D53' },
+        verdeOlivo: { bg: '#FAF9F6', text: '#424242', gold: '#556B2F', terra: '#4A5E2A' },
+        limon: { bg: '#FFFFFF', text: '#2D5A27', gold: '#F4D03F', terra: '#98D8C8' }
+    };
+    
+    async function loadAdminData() {
+        try {
+            const res = await fetch('/get-data?_=' + Date.now());
+            const data = await res.json();
+            adminData = data;
+            document.getElementById('total-rsvp').innerText = (adminData.rsvps || []).length;
+            document.getElementById('total-photos').innerText = (adminData.photos || []).length;
+            const total = (adminData.rsvps || []).reduce((a,b) => a + (b.attendees || 1), 0);
+            document.getElementById('total-attendees').innerText = total;
+            document.getElementById('wa-number').innerText = adminData.config?.whatsapp_number || 'No configurado';
+            renderRSVP();
+            renderPhotos();
+            renderAttendees();
+            loadConfig();
+            loadIA();
+            previewTheme();
+        } catch(e) { console.error(e); }
+    }
+    
+    function renderRSVP() {
+        const tbody = document.getElementById('rsvp-list');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        (adminData.rsvps || []).forEach(r => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerText = r.name || '-';
+            row.insertCell(1).innerText = r.email || '-';
+            row.insertCell(2).innerText = r.phone || '-';
+            row.insertCell(3).innerText = r.whatsapp || '-';
+            row.insertCell(4).innerText = r.attendees || 1;
+            row.insertCell(5).innerText = r.allergies || '-';
+            row.insertCell(6).innerText = r.song || '-';
+            row.insertCell(7).innerText = r.date ? new Date(r.date).toLocaleDateString() : '-';
+        });
+    }
+    
+    function renderAttendees() {
+        const tbody = document.getElementById('attendees-list');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        const attendees = (adminData.rsvps || []).filter(r => r.attending === true);
+        attendees.forEach(r => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerText = r.name || '-';
+            row.insertCell(1).innerText = r.phone || '-';
+            row.insertCell(2).innerText = r.whatsapp || '-';
+            row.insertCell(3).innerText = r.attendees || 1;
+            row.insertCell(4).innerText = r.allergies || '-';
+            row.insertCell(5).innerText = r.song || '-';
+        });
+    }
+    
+    function exportToCSV() {
+        const attendees = (adminData.rsvps || []).filter(r => r.attending === true);
+        if (attendees.length === 0) { alert('No hay asistentes'); return; }
+        let csv = "Nombre,Email,Teléfono,WhatsApp,Acompañantes,Alergias,Canción,Fecha\n";
+        attendees.forEach(r => { csv += `"${r.name || ''}","${r.email || ''}","${r.phone || ''}","${r.whatsapp || ''}",${r.attendees || 1},"${r.allergies || ''}","${r.song || ''}","${r.date || ''}"\n`; });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `asistentes_${new Date().toISOString().slice(0,10)}.csv`;
+        link.click();
+    }
+    
+    function exportToPDF() {
+        const attendees = (adminData.rsvps || []).filter(r => r.attending === true);
+        if (attendees.length === 0) { alert('No hay asistentes'); return; }
+        let html = `<html><head><title>Asistentes Boda</title><style>body{font-family:Arial;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #ddd;padding:8px;}</style></head><body><h1>Lista de Asistentes</h1><table><tr><th>Nombre</th><th>Teléfono</th><th>Acompañantes</th></tr>`;
+        attendees.forEach(r => { html += `<tr><td>${r.name}</td><td>${r.phone}</td><td>${r.attendees}</td></tr>`; });
+        html += `</table></body></html>`;
+        const win = window.open();
+        win.document.write(html);
+        win.document.close();
+        win.print();
+    }
+    
+    function renderPhotos() {
+        const grid = document.getElementById('admin-photos-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        (adminData.photos || []).forEach((p, i) => {
+            const div = document.createElement('div');
+            div.className = 'photo-card';
+            div.innerHTML = `<img src="${p.url}" class="photo-preview"><div>${p.caption || ''}</div><button class="btn btn-danger" style="margin-top:0.5rem;padding:0.25rem 0.5rem;" onclick="deletePhoto(${i})">Eliminar</button>`;
+            grid.appendChild(div);
+        });
+    }
+    
+    async function uploadPhoto() {
+        const file = document.getElementById('photo-upload').files[0];
+        if (!file) { alert('Selecciona una foto'); return; }
+        const caption = document.getElementById('photo-caption').value;
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            adminData.photos.push({ id: Date.now(), url: e.target.result, caption: caption || 'Foto' });
+            await saveAllData();
+            renderPhotos();
+            document.getElementById('upload-message').innerHTML = '<div class="success">✅ Foto subida</div>';
+            setTimeout(() => document.getElementById('upload-message').innerHTML = '', 3000);
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    async function deletePhoto(index) {
+        if (confirm('¿Eliminar?')) {
+            adminData.photos.splice(index, 1);
+            await saveAllData();
+            renderPhotos();
+        }
+    }
+    
+    function loadConfig() {
+        const cfg = adminData.config || {};
+        document.getElementById('config-date').value = cfg.wedding_date?.slice(0,16) || '';
+        document.getElementById('config-couple-name').value = cfg.couple_name || '';
+        document.getElementById('config-venue-name').value = cfg.venue_name || '';
+        document.getElementById('config-venue-address').value = cfg.venue_address || '';
+        document.getElementById('config-coordinates').value = cfg.coordinates || '';
+        document.getElementById('config-reception-name').value = cfg.reception_name || '';
+        document.getElementById('config-reception-address').value = cfg.reception_address || '';
+        document.getElementById('config-story').value = cfg.story_text || '';
+        document.getElementById('config-verse-text').value = cfg.verse_text || '';
+        document.getElementById('config-verse-ref').value = cfg.verse_reference || '';
+        document.getElementById('config-theme-text').value = cfg.theme_text || '';
+        document.getElementById('config-gallery-message').value = cfg.gallery_message || '';
+        document.getElementById('config-theme').value = cfg.selected_theme || 'limon';
+        // Música
+        document.getElementById('config-music-yt-id').value  = cfg.music_yt_id    || '';
+        document.getElementById('config-music-name').value   = cfg.music_song_name || '';
+        // Hero slider
+        heroSlides = Array.isArray(cfg.hero_slides) ? cfg.hero_slides.map(s => typeof s === 'string' ? {url: s, caption: ''} : s) : [];
+        renderHeroSlidesAdmin();
+        previewTheme();
+    }
+
+    // ===== HERO SLIDER ADMIN =====
+
+    function renderHeroSlidesAdmin() {
+        const grid = document.getElementById('hero-slides-admin');
+        if (!grid) return;
+        grid.innerHTML = '';
+        if (heroSlides.length === 0) {
+            grid.innerHTML = '<p style="color:#aaa;font-size:0.85rem;">Sin imágenes. Agrega al menos una para el carrusel.</p>';
+            return;
+        }
+        heroSlides.forEach((slide, i) => {
+            const card = document.createElement('div');
+            card.style.cssText = 'position:relative;border-radius:10px;overflow:hidden;border:2px solid #98D8C8;width:160px;flex-shrink:0;background:#f5f5f5;';
+            card.innerHTML = `
+                <img src="${slide.url}" alt="Slide ${i+1}" style="width:160px;height:100px;object-fit:cover;display:block;">
+                <div style="padding:4px 6px;font-size:0.75rem;color:#2D5A27;font-weight:600;">Slide ${i+1}</div>
+                <div style="display:flex;gap:4px;padding:4px 6px;">
+                    ${i > 0 ? `<button onclick="moveHeroSlide(${i}, -1)" title="Mover izquierda" style="flex:1;border:none;background:#F4D03F;border-radius:6px;cursor:pointer;padding:3px;">◀</button>` : '<span style="flex:1;"></span>'}
+                    ${i < heroSlides.length-1 ? `<button onclick="moveHeroSlide(${i}, 1)" title="Mover derecha" style="flex:1;border:none;background:#F4D03F;border-radius:6px;cursor:pointer;padding:3px;">▶</button>` : '<span style="flex:1;"></span>'}
+                    <button onclick="removeHeroSlide(${i})" title="Eliminar" style="flex:1;border:none;background:#c0392b;color:white;border-radius:6px;cursor:pointer;padding:3px;">✕</button>
+                </div>`;
+            grid.appendChild(card);
+        });
+    }
+
+    function addHeroSlideFromUrl() {
+        const input = document.getElementById('config-hero-url-input');
+        const url = (input?.value || '').trim();
+        if (!url || !url.startsWith('http')) { alert('Ingresa una URL válida (debe empezar con http)'); return; }
+        heroSlides.push({ url, caption: '' });
+        input.value = '';
+        renderHeroSlidesAdmin();
+    }
+
+    function removeHeroSlide(index) {
+        heroSlides.splice(index, 1);
+        renderHeroSlidesAdmin();
+    }
+
+    function moveHeroSlide(index, direction) {
+        const newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= heroSlides.length) return;
+        [heroSlides[index], heroSlides[newIndex]] = [heroSlides[newIndex], heroSlides[index]];
+        renderHeroSlidesAdmin();
+    }
+
+    // Subida múltiple desde PC
+    document.getElementById('hero-file-input')?.addEventListener('change', function() {
+        const files = Array.from(this.files);
+        if (!files.length) return;
+        const maxMB = 5;
+        let processed = 0;
+        files.forEach(file => {
+            if (file.size > maxMB * 1024 * 1024) {
+                alert(`"${file.name}" supera ${maxMB}MB. Comprímela primero.`);
+                processed++;
+                if (processed === files.length) renderHeroSlidesAdmin();
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxW = 1920;
+                    let w = img.width, h = img.height;
+                    if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    const compressed = canvas.toDataURL('image/jpeg', 0.82);
+                    heroSlides.push({ url: compressed, caption: '' });
+                    processed++;
+                    if (processed === files.length) renderHeroSlidesAdmin();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+    
+    function loadIA() {
+        document.getElementById('ia-whatsapp').value = adminData.config?.whatsapp_number || '';
+    }
+    
+    function previewTheme() {
+        const theme = document.getElementById('config-theme').value;
+        const colors = themes[theme] || themes.limon;
+        document.getElementById('preview-bg').style.backgroundColor = colors.bg;
+        document.getElementById('preview-text').style.backgroundColor = colors.text;
+        document.getElementById('preview-gold').style.backgroundColor = colors.gold;
+        document.getElementById('preview-terra').style.backgroundColor = colors.terra;
+        document.getElementById('theme-preview').style.background = colors.bg;
+    }
+    
+    async function saveConfig() {
+        if (!adminData.config) adminData.config = {};
+        adminData.config.wedding_date = document.getElementById('config-date').value;
+        adminData.config.couple_name = document.getElementById('config-couple-name').value;
+        adminData.config.venue_name = document.getElementById('config-venue-name').value;
+        adminData.config.venue_address = document.getElementById('config-venue-address').value;
+        adminData.config.coordinates = document.getElementById('config-coordinates').value;
+        adminData.config.reception_name = document.getElementById('config-reception-name').value;
+        adminData.config.reception_address = document.getElementById('config-reception-address').value;
+        adminData.config.story_text = document.getElementById('config-story').value;
+        adminData.config.verse_text = document.getElementById('config-verse-text').value;
+        adminData.config.verse_reference = document.getElementById('config-verse-ref').value;
+        adminData.config.theme_text = document.getElementById('config-theme-text').value;
+        adminData.config.gallery_message = document.getElementById('config-gallery-message').value;
+        adminData.config.selected_theme  = document.getElementById('config-theme').value;
+        // Música
+        adminData.config.music_yt_id     = document.getElementById('config-music-yt-id').value.trim().replace(/.*v=/,'').replace(/&.*/,'');
+        adminData.config.music_song_name = document.getElementById('config-music-name').value.trim();
+        adminData.config.hero_slides = heroSlides;
+        await saveAllData();
+        document.getElementById('config-message').innerHTML = '<div class="success">✅ Configuración guardada</div>';
+        setTimeout(() => document.getElementById('config-message').innerHTML = '', 3000);
+    }
+    
+    async function saveIANumber() {
+        let num = document.getElementById('ia-whatsapp').value.trim().replace(/[\s\-\(\)\+]/g, '');
+        if (num.length < 10) { alert('Número inválido'); return; }
+        if (!num.startsWith('52') && num.length === 10) num = '52' + num;
+        adminData.config.whatsapp_number = num;
+        await saveAllData();
+        document.getElementById('ia-message').innerHTML = '<div class="success">✅ Número guardado</div>';
+        document.getElementById('wa-number').innerText = num;
+        setTimeout(() => document.getElementById('ia-message').innerHTML = '', 3000);
+    }
+    
+    function testWhatsApp() {
+        const num = adminData.config?.whatsapp_number;
+        if (!num) { alert('Configura el número primero'); return; }
+        window.open(`https://wa.me/${num}?text=Hola%20probando%20el%20asistente%20IA`, '_blank');
+    }
+    
+    async function sendReminders(testMode) {
+        const days = document.getElementById('reminder-days').value;
+        const msg = document.getElementById('reminder-message').value;
+        document.getElementById('reminder-result').innerHTML = '<div class="success">⏳ Procesando...</div>';
+        const res = await fetch('/send-reminders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ daysBefore: parseInt(days), testMode, message: msg }) });
+        const result = await res.json();
+        document.getElementById('reminder-result').innerHTML = `<div class="success">✅ ${testMode ? 'SIMULACIÓN' : 'ENVÍO'}: ${result.sent} recordatorios</div>`;
+    }
+    
+    async function saveAllData() {
+        try {
+            const res = await fetch('/save-data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(adminData)
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({ error: 'Error desconocido' }));
+                console.error('Error al guardar:', err);
+                alert('❌ Error al guardar: ' + (err.error || res.status));
+                return;
+            }
+            await loadAdminData();
+        } catch (e) {
+            console.error('saveAllData exception:', e);
+            alert('❌ No se pudo conectar al servidor: ' + e.message);
+        }
+    }
+    
+    function logout() { if (confirm('¿Cerrar sesión?')) window.location.href = 'index.html'; }
+    
+    function changePassword() {
+        const current = document.getElementById('sec-current').value;
+        const newPass = document.getElementById('sec-new').value;
+        const confirm = document.getElementById('sec-confirm').value;
+        const stored  = localStorage.getItem('admin_password') || 'boda2027';
+        const msgDiv  = document.getElementById('sec-message');
+
+        if (current !== stored) {
+            msgDiv.innerHTML = '<div class="error">❌ La contraseña actual es incorrecta.</div>';
+            return;
+        }
+        if (newPass.length < 6) {
+            msgDiv.innerHTML = '<div class="error">❌ La nueva contraseña debe tener al menos 6 caracteres.</div>';
+            return;
+        }
+        if (newPass !== confirm) {
+            msgDiv.innerHTML = '<div class="error">❌ Las contraseñas no coinciden.</div>';
+            return;
+        }
+        localStorage.setItem('admin_password', newPass);
+        msgDiv.innerHTML = '<div class="success">✅ Contraseña actualizada. Guárdala en un lugar seguro. 🔐</div>';
+        document.getElementById('sec-current').value = '';
+        document.getElementById('sec-new').value = '';
+        document.getElementById('sec-confirm').value = '';
+        setTimeout(() => msgDiv.innerHTML = '', 5000);
+    }
+
+    // Listener para preview de colores al cambiar el selector de tema
+    document.getElementById('config-theme')?.addEventListener('change', previewTheme);
+
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.tab + '-tab').classList.add('active');
+        });
+    });
+    
+    loadAdminData();
+    setInterval(loadAdminData, 30000);
+</script>
+</body>
+</html>
