@@ -573,55 +573,116 @@ setInterval(loadPublicData, 10000);
 
     applyParallax();
 })();
-// ========== MÚSICA CRISTIANA ==========
-// Video por defecto: Instrumental Cristiana Matrimonio (libre de derechos)
-// ID de YouTube — configurable desde admin
-const DEFAULT_MUSIC_YT_ID = 'UPbPHqFxsyc'; // "Música Cristiana Para Bodas - Instrumental"
+// ========== MÚSICA CRISTIANA — YouTube IFrame API ==========
+const DEFAULT_MUSIC_YT_ID = 'UPbPHqFxsyc';
 
-let musicPlaying = false;
-let ytPlayerReady = false;
-let ytVideoId = DEFAULT_MUSIC_YT_ID;
+let ytPlayer       = null;
+let ytApiLoaded    = false;
+let ytPlayerReady  = false;
+let musicPlaying   = false;
+let ytVideoId      = DEFAULT_MUSIC_YT_ID;
+let pendingPlay    = false;
 
-function initMusic(videoId) {
-    ytVideoId = videoId || DEFAULT_MUSIC_YT_ID;
-    const songNames = {
-        'UPbPHqFxsyc': 'Música Cristiana — Matrimonio',
-        'default':     'Instrumental Cristiana'
-    };
-    const nameEl = document.getElementById('music-song-name');
-    if (nameEl) nameEl.textContent = songNames[ytVideoId] || 'Instrumental Cristiana';
+// Cargar la API de YouTube una sola vez
+function loadYouTubeAPI() {
+    if (ytApiLoaded) return;
+    ytApiLoaded = true;
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
 }
 
-function toggleMusic() {
-    const btn    = document.getElementById('music-btn');
-    const icon   = document.getElementById('music-icon');
-    const label  = document.getElementById('music-label');
-    const iframe = document.getElementById('yt-player');
-    if (!iframe) return;
+// Callback global que llama YouTube cuando la API está lista
+window.onYouTubeIframeAPIReady = function() {
+    ytPlayer = new YT.Player('yt-player', {
+        height: '1',
+        width: '1',
+        videoId: ytVideoId,
+        playerVars: {
+            autoplay: 0,
+            loop: 1,
+            playlist: ytVideoId,
+            controls: 0,
+            showinfo: 0,
+            rel: 0,
+            iv_load_policy: 3,
+            modestbranding: 1
+        },
+        events: {
+            onReady: function(e) {
+                ytPlayerReady = true;
+                e.target.setVolume(70);
+                if (pendingPlay) {
+                    e.target.playVideo();
+                    pendingPlay = false;
+                    setMusicUI(true);
+                }
+            },
+            onStateChange: function(e) {
+                // Si el video termina (estado 0) reiniciar
+                if (e.data === YT.PlayerState.ENDED) {
+                    e.target.playVideo();
+                }
+            },
+            onError: function() {
+                setMusicUI(false);
+                musicPlaying = false;
+                const label = document.getElementById('music-label');
+                if (label) label.textContent = 'No disponible';
+            }
+        }
+    });
+};
 
-    if (!musicPlaying) {
-        // Cargar y reproducir
-        iframe.src = `https://www.youtube.com/embed/${ytVideoId}?autoplay=1&loop=1&playlist=${ytVideoId}&controls=0&showinfo=0&rel=0&mute=0`;
-        musicPlaying = true;
+function setMusicUI(playing) {
+    const btn   = document.getElementById('music-btn');
+    const icon  = document.getElementById('music-icon');
+    const label = document.getElementById('music-label');
+    if (playing) {
         if (btn)   btn.classList.add('playing');
         if (icon)  icon.textContent = '🎶';
         if (label) label.textContent = 'Pausar';
     } else {
-        // Detener
-        iframe.src = '';
-        musicPlaying = false;
         if (btn)   btn.classList.remove('playing');
         if (icon)  icon.textContent = '🎵';
         if (label) label.textContent = 'Música';
     }
 }
 
-// Iniciar música con el video configurado desde admin
-// Se llama desde loadPublicData después de recibir config
+function toggleMusic() {
+    if (!ytApiLoaded) {
+        loadYouTubeAPI();
+        pendingPlay = true;
+        musicPlaying = true;
+        const label = document.getElementById('music-label');
+        if (label) label.textContent = 'Cargando...';
+        return;
+    }
+
+    if (!ytPlayerReady) {
+        pendingPlay = true;
+        musicPlaying = true;
+        return;
+    }
+
+    if (!musicPlaying) {
+        ytPlayer.playVideo();
+        musicPlaying = true;
+        setMusicUI(true);
+    } else {
+        ytPlayer.pauseVideo();
+        musicPlaying = false;
+        setMusicUI(false);
+    }
+}
+
 function loadMusicConfig(config) {
-    const videoId = config?.music_yt_id || DEFAULT_MUSIC_YT_ID;
-    const songName = config?.music_song_name || 'Instrumental Cristiana — Matrimonio';
-    initMusic(videoId);
+    ytVideoId = config?.music_yt_id || DEFAULT_MUSIC_YT_ID;
+    const songName = config?.music_song_name || 'Instrumental Cristiana';
     const nameEl = document.getElementById('music-song-name');
     if (nameEl) nameEl.textContent = songName;
+    // Si el player ya existe y cambió el video, actualizarlo
+    if (ytPlayerReady && ytPlayer) {
+        ytPlayer.cueVideoById({ videoId: ytVideoId, suggestedQuality: 'small' });
+    }
 }
